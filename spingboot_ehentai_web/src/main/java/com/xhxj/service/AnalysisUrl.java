@@ -28,19 +28,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 
 @Component
-public class AnalysisUrl  {
+public class AnalysisUrl {
     /**
      * 公用资源
      */
     @Value("${catalog}")
-    private String catalog ;
+    private String catalog;
 
     @Autowired
     private EheitaiCatalogDao eheitaiCatalogDao;
@@ -52,7 +51,7 @@ public class AnalysisUrl  {
     /**
      * 解析页面
      */
-    public void analysisHtml()  {
+    public void analysisHtml() {
         String content = null;
         try {
             content = FileUtils.readFileToString(new File(catalog), "utf-8");
@@ -109,12 +108,12 @@ public class AnalysisUrl  {
 
                 List<EheitaiCatalog> byDivId = eheitaiCatalogDao.findByDivId(eheitaiCatalog.getDivId());
 
-                if (byDivId==null||byDivId.size()==0){
+                if (byDivId == null || byDivId.size() == 0) {
 
                     eheitaiCatalogDao.save(eheitaiCatalog);
                     System.out.println("已保存:" + eheitaiCatalog + "\n");
-                }else {
-                    System.out.println("sql中有重复数据:"+byDivId+"\n"+"未保存");
+                } else {
+                    System.out.println("sql中有重复数据:" + byDivId + "\n" + "未保存");
                 }
 
             }
@@ -124,7 +123,6 @@ public class AnalysisUrl  {
         }
         System.out.println("一共:" + (i - 1));
     }
-
 
 
     //静态初始化连接池
@@ -152,8 +150,6 @@ public class AnalysisUrl  {
     }
 
 
-
-
     /**
      * 读取转换cookie为HashMap
      *
@@ -172,13 +168,12 @@ public class AnalysisUrl  {
     }
 
 
-
     /**
      * 获取http静态页面
      *
      * @param
      */
-    public void getHttp() {
+    public String getHttp() {
 
         CookieStore cookieStore = new BasicCookieStore();
 //        System.out.println("传入cookieStore前的数据:" + cookieStore.toString());
@@ -245,7 +240,7 @@ public class AnalysisUrl  {
 //                if (httpEntity != null) {
 //                    html = EntityUtils.toString(httpEntity);
 //                }
-
+                return coding;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -258,6 +253,7 @@ public class AnalysisUrl  {
                 System.out.println("关流失败");
             }
         }
+        return null;
     }
 
     /**
@@ -293,7 +289,6 @@ public class AnalysisUrl  {
             //获取最可能的编码格式
             CharsetMatch match = detector.detect();
             httpName = match.getName();
-            System.out.println("网站的编码格式为:" + httpName);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("检查编码时报错");
