@@ -6,8 +6,8 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/ehentaiweb/pom.xml" />
         <option value="$PROJECT_DIR$/webmagic-core/pom.xml" />
+        <option value="$PROJECT_DIR$/spingboot_ehentai_web/pom.xml" />
       </list>
     </option>
   </component>

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" addBOMForNewFiles="with NO BOM">
+    <file url="file://$PROJECT_DIR$/ehentaiweb" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spingboot_ehentai_web" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/webmagic-core" charset="UTF-8" />
   </component>
 </project>
