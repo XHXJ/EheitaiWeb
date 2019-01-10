@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
+
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Component
-public class AnalysisUrl {
+public class AnalysisUrl  {
     /**
      * 公用资源
      */

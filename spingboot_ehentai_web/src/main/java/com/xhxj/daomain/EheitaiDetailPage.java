@@ -1,26 +1,33 @@
 package com.xhxj.daomain;
 
-import lombok.Data;
-import org.springframework.data.annotation.Id;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import javax.persistence.*;
+import java.io.Serializable;
+
 
 @Data
 @Entity
-public class EheitaiDetailPage {
-    @Id
-    @Column(name = "id")
-    private Integer id;
-    private String url;
-    private Integer page;
-    private String pageCount;
-    private Data Posted;
-    private String Language;
+@ToString(exclude = {"eheitaiCatalog"})
+@EqualsAndHashCode(exclude = {"eheitaiCatalog"})
+public class EheitaiDetailPage  implements Serializable {
 
-    @ManyToOne(targetEntity = EheitaiCatalog.class)
-    @JoinColumn(name =  "divId", referencedColumnName = "id")
-    private EheitaiCatalog eheitaiCatalog;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
+  private String language;
+  private String posted;
+  private Integer page;
+  private String pageCount;
+  private String url;
+
+  @ManyToOne(targetEntity = EheitaiCatalog.class)
+  @JoinColumn(name = "eheitai_id", referencedColumnName = "div_id")
+  private EheitaiCatalog eheitaiCatalog;
+
+
+
 }

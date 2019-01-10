@@ -3,12 +3,13 @@ package com.xhxj.daomain;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@Entity(name = "EheitaiCatalog")
-public class EheitaiCatalog {
+@Entity
+public class EheitaiCatalog implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -16,12 +17,12 @@ public class EheitaiCatalog {
     private String url;
     private String imgUrl;
 
-   // @Column(name = "div_Id")
+    @Column(name = "div_id")
     private Integer divId;
     private Integer complete = 0;
 
-//    @OneToMany(targetEntity = EheitaiDetailPage.class)
-//    @JoinColumn(name = "div_Id", referencedColumnName = "id")
-//    Set<EheitaiDetailPage> eheitaiDetailPages = new HashSet<EheitaiDetailPage>();
+    @OneToMany(targetEntity = EheitaiDetailPage.class)
+    @JoinColumn(name = "eheitai_id", referencedColumnName = "div_id")
+    private Set<EheitaiDetailPage> eheitaiDetailPages = new HashSet<EheitaiDetailPage>();
 
 }
