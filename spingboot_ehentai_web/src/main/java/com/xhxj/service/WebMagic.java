@@ -3,6 +3,9 @@ package com.xhxj.service;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,10 +21,15 @@ import us.codecraft.webmagic.pipeline.JsonFilePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
+import us.codecraft.webmagic.selector.AbstractSelectable;
+import us.codecraft.webmagic.selector.HtmlNode;
 import us.codecraft.webmagic.selector.Selectable;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,22 +57,61 @@ public class WebMagic implements PageProcessor {
 
 
         //在这里处理获取到的页面
-        String string = page.getHtml().css("div.gdtm a").links().toString();
-        if (string == null) {
+        List<String> list = page.getHtml().css("div.gdtm a").links().all();
+        if (list == null||list.size()==0) {
             //如果空了就说明当前是在图片页面
-            System.out.println("这就是第二次访问了:");
+            System.out.println("这是图片页面:");
+            System.out.println(page.getRequest().getUrl());
 
-            //写出文件
-            writeFile(page);
 
-            //判断当前在第几页,还有几页到最后
+            //获取当前的连接
+            String url = page.getRequest().getUrl();
+            //我得获取它是第几页
+            System.out.println("这是第:"+page.getHtml().css("div.sn>div>span ","text").toString());
+
+
+            //获取当前文件叫什么名
+
+
+
+            //如果到了最后一页他的图片地址应该是和当前是重复的.
 
 
         } else {
             //没空就说明还在首页
-            System.out.println("第一次访问" + string);
+            System.out.println("第一次访问" + list.toString());
             //把这个页面丢给爬虫去访问
-            page.addTargetRequest(string);
+            //获取总页数储存到数据库中去
+            Selectable regex = page.getHtml().$("div#gdd ");
+            //这里是全部的页面信息
+            String string = regex.toString();
+            Document parse = Jsoup.parseBodyFragment(string);
+            System.out.println("------------------------------");
+            //已获取总页数
+            String text = parse.select("tr:contains(Length:)").select("td.gdt2").text();
+
+            //获取上传的时间
+            String posted = parse.select("tr:contains(Posted:)").select("td.gdt2").text();
+
+            //获取文件大小
+            String fileSize = parse.select("tr:contains(File Size:)").select("td.gdt2").text();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd ss:HH");
+            Date postedDate = new Date();
+            try {
+                postedDate = simpleDateFormat.parse(posted);
+            } catch (ParseException e) {
+                System.out.println("解析页面时转换时间出错");
+                e.printStackTrace();
+            }
+
+            System.out.println("上传文件的大小"+fileSize);
+
+            System.out.println("上传的时间是"+postedDate);
+            //xpath.$("td.gdt2","text").toString();
+            System.out.println("一共有多少页"+text);
+//            page.putField("totalpages",text);
+
+            page.addTargetRequest(list.get(list.size()-1));
         }
 
 
@@ -122,6 +169,7 @@ public class WebMagic implements PageProcessor {
         System.out.println("e://" + title + "/title/" + UUID.randomUUID() + ".html");
 
         System.out.println("要爬的网站路径~~~~~~" + url);
+        //只去爬详情页面的数据
         Spider spider = Spider.create(new WebMagic())
                 .addUrl(url)
                 .addPipeline(webMagicDate)
