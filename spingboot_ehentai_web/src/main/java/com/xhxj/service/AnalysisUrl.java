@@ -35,6 +35,8 @@ import java.util.List;
 
 @Component
 public class AnalysisUrl {
+
+
     /**
      * 公用资源
      */
@@ -303,17 +305,22 @@ public class AnalysisUrl {
      * @param content 爬取网站的io流
      * @throws IOException
      */
-    private static void getFileOutputStream(InputStream content, String url) throws IOException {
-        //写出文件看看乍回事
-        FileOutputStream downloadFile = new FileOutputStream(url);
-        int index;
-        byte[] bytes = new byte[1024];
-        while ((index = content.read(bytes)) != -1) {
-            downloadFile.write(bytes, 0, index);
-            downloadFile.flush();
-        }
+    public   void getFileOutputStream(InputStream content, String url)  {
+        try {
+            //写出文件看看乍回事
+            FileOutputStream downloadFile = new FileOutputStream(url);
+            int index;
+            byte[] bytes = new byte[1024];
+            while ((index = content.read(bytes)) != -1) {
+                downloadFile.write(bytes, 0, index);
+                downloadFile.flush();
+            }
 
-        downloadFile.close();
+            downloadFile.close();
+        } catch (IOException e) {
+            System.out.println("在写出网站的时候出错");
+            e.printStackTrace();
+        }
     }
 
 
