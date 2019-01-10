@@ -2,10 +2,11 @@ package com.xhxj.dao;
 
 import com.xhxj.daomain.EheitaiCatalog;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
-public interface EheitaiCatalogDao extends JpaRepository<EheitaiCatalog,Integer> {
+public interface EheitaiCatalogDao extends JpaRepository<EheitaiCatalog,Integer>, JpaSpecificationExecutor<EheitaiCatalog> {
      List<EheitaiCatalog> findByDivId(Integer divId);
 }
 
