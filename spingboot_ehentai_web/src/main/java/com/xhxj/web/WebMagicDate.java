@@ -5,6 +5,7 @@ import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiDetailPage;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,13 @@ public class WebMagicDate implements Pipeline {
         //接受page传过来的对象
         EheitaiCatalog pageEheitaiCatalog = resultItems.get("eheitaiCatalog");
         EheitaiDetailPage pageeheitaiDetailPage = resultItems.get("eheitaiDetailPage");
+        //这里接收到的是gid
+        String complete = resultItems.get("complete");
+        if (StringUtils.isNotEmpty(complete)){
+            //作品爬取完毕,通知下载器下载
+            System.out.println("@@@@@@@@@@@@@@@@@@作品:"+complete+"爬取完毕通知下载");
+
+        }
         //接收eheitaiCatalog参数,否则放过
         if (pageEheitaiCatalog != null) {
 
@@ -67,9 +75,6 @@ public class WebMagicDate implements Pipeline {
                 //保存下载连接
                 eheitaiDetailPageService.saveEheitaiDetailPage(pageeheitaiDetailPage,gid);
                 System.out.println("在page获取到的为:"+pageeheitaiDetailPage+"\ngid="+gid);
-
-
-            }else {
 
 
             }

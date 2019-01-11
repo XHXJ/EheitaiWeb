@@ -16,4 +16,10 @@ public interface EheitaiCatalogService {
      * @param pageEheitaiCatalog 解析页面page获取到的数据
      */
     void updatePageEheitaiCatalog(EheitaiCatalog pageEheitaiCatalog);
+
+    /**
+     * 查询全部
+     * @return
+     */
+    List<EheitaiCatalog> findAll();
 }

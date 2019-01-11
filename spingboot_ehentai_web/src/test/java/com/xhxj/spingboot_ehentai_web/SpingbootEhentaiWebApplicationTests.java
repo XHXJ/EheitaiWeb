@@ -61,7 +61,7 @@ public class SpingbootEhentaiWebApplicationTests {
     @Test
     @Transactional
     public void Test01(){
-        //analysisUrl.getHttp();
+        analysisUrl.getHttp();
         //获取解析结果存入sql
         analysisUrl.analysisHtml();
         //下载页面

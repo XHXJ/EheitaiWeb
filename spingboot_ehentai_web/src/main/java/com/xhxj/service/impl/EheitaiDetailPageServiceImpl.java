@@ -43,8 +43,6 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
         if (byImgUrlAndPage.size()==0){
             //如果是空才去保存,不重复抓取数据
 
-
-
         List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
         EheitaiCatalog eheitaiCatalog = byGid.get(0);
 

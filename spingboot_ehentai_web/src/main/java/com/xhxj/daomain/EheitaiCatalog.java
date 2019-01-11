@@ -17,7 +17,7 @@ public class EheitaiCatalog implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     //标题
-    @Column(name = "title",nullable = false, length = 100)
+    @Column(name = "title",nullable = false,length = 1000)
     private String title = "";
     //作品连接
     @Column(nullable = false)

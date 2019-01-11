@@ -4,6 +4,9 @@ import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiDetailPage;
+import com.xhxj.service.EheitaiCatalogService;
+import com.xhxj.service.EheitaiDetailPageService;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import javax.annotation.PostConstruct;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,9 +35,9 @@ public class WebMagic implements PageProcessor {
     @Autowired
     AnalysisUrl analysisUrl;
     @Autowired
-    EheitaiCatalogDao eheitaiCatalogDao;
+    EheitaiCatalogService eheitaiCatalogDao;
     @Autowired
-    EheitaiDetailPageDao eheitaiDetailPageDao;
+    EheitaiDetailPageService eheitaiDetailPageDao;
     @Autowired
     WebMagicDate webMagicDate;
 
@@ -47,30 +51,33 @@ public class WebMagic implements PageProcessor {
     @Override
     public void process(Page page) {
 
-
         //在这里处理获取到的页面
         List<String> list = page.getHtml().css("div.gdtm a").links().all();
         if (list == null || list.size() == 0) {
-            //如果空了就说明当前是在图片页面
+            //图片页面
             parseDetailPageImgHtml(page);
+
         } else {
-            //没空就说明还在首页
+            //作品首页
             System.out.println("第一次访问" + list.toString());
 
             //解析首页
             parseDetailPageHomeHtml(page);
 
+            //获取首页的第二页链接
+            String string = page.getHtml().xpath("/html/body/div[3]/table/tbody/tr/td[4]/a").links().toString();
+
+            if (StringUtils.isNotEmpty(string)) {
+                list.add(string);
+            }
             //把所有获取到的数据用过去
             page.addTargetRequests(list);
         }
-
-
-//        page.putField("jobInfo",all);
-
     }
 
     /**
      * 解析图片下载页面
+     *
      * @param page
      */
     private void parseDetailPageImgHtml(Page page) {
@@ -80,7 +87,7 @@ public class WebMagic implements PageProcessor {
         eheitaiDetailPage.setUrl(page.getRequest().getUrl());
         //设置文件信息
         String filelog = page.getHtml().$("div#i2>div").all().get(1);
-        String[] divs  = Jsoup.parseBodyFragment(filelog).select("div").text().split(" :: ");
+        String[] divs = Jsoup.parseBodyFragment(filelog).select("div").text().split(" :: ");
         eheitaiDetailPage.setFileLog(divs[0]);
         eheitaiDetailPage.setResolution(divs[1]);
         eheitaiDetailPage.setFileSize(divs[2]);
@@ -97,20 +104,29 @@ public class WebMagic implements PageProcessor {
 
         Integer integer = Integer.valueOf(gid);
         //把所需要的对象传过去
-        page.putField("eheitaiDetailPage",eheitaiDetailPage);
-        page.putField("gid",integer);
+        page.putField("eheitaiDetailPage", eheitaiDetailPage);
+        page.putField("gid", integer);
+
+        //看看是不是最后一页了最后一页通知下载进程去下载
+        //当前页
+        String currentpage = page.getHtml().css("div.sn>div>span ", "text").toString();
+        //总页面
+        String lastpage = page.getHtml().xpath("//*[@id='i2']/div[1]/div/span[2]/text()").toString();
+
+        //如果到了最后一页的图片页数应该是和当前页数重复的.
+        if(currentpage.equals(lastpage)){
+            //已经是图片页页尾,该作品爬取完毕
+            //用中间件MQ通知下载器,需要把当前作品id传过去
+            page.putField("complete",gid);
+        }
 
 
 
-
-
-
-
-        //如果到了最后一页他的图片地址应该是和当前是重复的.
     }
 
     /**
      * 获取首页的解析
+     *
      * @param page
      */
     private void parseDetailPageHomeHtml(Page page) {
@@ -134,10 +150,10 @@ public class WebMagic implements PageProcessor {
         String eid = parse.select("tr:contains(Parent:)").select("td.gdt2").text();
         //这是网站的真实id,更具这个去更新数据
         List<String> all = page.getHtml().xpath("//script[@type]").all();
-        String gid = all.get(1).split("\n")[4].split(" ")[3].replace(";","");
+        String gid = all.get(1).split("\n")[4].split(" ")[3].replace(";", "");
         //这个地址和id相加就是网站链接
         List<String> all1 = page.getHtml().xpath("//script[@type]").all();
-        String token = all1.get(1).split("\n")[5].split(" ")[3].replace(";","");
+        String token = all1.get(1).split("\n")[5].split(" ")[3].replace(";", "");
 
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd ss:HH");
@@ -156,14 +172,16 @@ public class WebMagic implements PageProcessor {
         eheitaiCatalog.setPostedDate(postedDate);
         eheitaiCatalog.setFileSize(fileSize);
         eheitaiCatalog.setLanguage(language);
-        eheitaiCatalog.setParent(Integer.valueOf(eid));
+        if (!eid.equalsIgnoreCase("none")){
+            eheitaiCatalog.setParent(Integer.valueOf(eid));
+        }
         eheitaiCatalog.setGid(Integer.valueOf(gid));
         eheitaiCatalog.setToken(token);
 
 
-        page.putField("eheitaiCatalog",eheitaiCatalog);
+        page.putField("eheitaiCatalog", eheitaiCatalog);
 
-        System.out.println("解析首页完成"+eheitaiCatalog);
+        System.out.println("解析首页完成" + eheitaiCatalog);
 
     }
 
@@ -190,8 +208,8 @@ public class WebMagic implements PageProcessor {
     }
 
 
-//    @PostConstruct
-@Scheduled(initialDelay = 1000,fixedDelay = 1*60*60*1000)
+    //    @PostConstruct
+    @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
     public void httpweb() {
         //抓取页面
 
@@ -206,37 +224,39 @@ public class WebMagic implements PageProcessor {
 
         //应该写service层的..
         String url = "";
-        String title = "";
-        int divId = 1329034;
-        //要爬取得数据的divid
-        List<EheitaiCatalog> byDivId = eheitaiCatalogDao.findByGid(divId);
-        //判断获取的作品不要是空的
-        if (byDivId.size()!=0){
+
+        Spider spider = null;
 
 
+        //把sql中没有爬的连接全部丢给爬虫
+        //这里以后要改要有条件的查询
 
-        for (EheitaiCatalog eheitaiCatalog : byDivId) {
-            url = eheitaiCatalog.getUrl();
-            title = eheitaiCatalog.getTitle();
-        }
+        List<EheitaiCatalog> all = eheitaiCatalogDao.findAll();
+        List<String> urlall = new ArrayList<>();
+        //如果sql中有数据就去爬
+        if (all.size() != 0) {
+            for (EheitaiCatalog eheitaiCatalog : all) {
+                urlall.add(eheitaiCatalog.getUrl());
+            }
+            String[] urllist = urlall.toArray(new String[urlall.size()]);
+            //给爬虫设置参数
+            spider = Spider.create(new WebMagic())
+//                    .addUrl(urllist)
+                    .addUrl("https://exhentai.org/s/3eb06292a3/1344692-99")
+                    .addPipeline(webMagicDate)
+                    .thread(100);
 
-        System.out.println("要爬的网站路径~~~~~~" + url);
-        //只去爬详情页面的数据
-            Spider spider = null;
-
-                spider = Spider.create(new WebMagic())
-                        .addUrl(url)
-                        .addPipeline(webMagicDate)
-                        .thread(10);
+            System.out.println("要爬的网站路径~~~~~~" + url);
+            //只去爬详情页面的数据
 
 
             //设置爬虫代理
-        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(new Proxy("127.0.0.1", 1081)));
-        spider.setDownloader(httpClientDownloader);
-        spider.run();
-        }else {
-            System.out.println("作品id:"+divId+"没有爬取连接,webmagic找不到要爬取的网页");
+            HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+            httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(new Proxy("127.0.0.1", 1081)));
+            spider.setDownloader(httpClientDownloader);
+            spider.run();
+        } else {
+            System.out.println("数据库出问题了?没数据?webmagic找不到要爬取的网页");
         }
     }
     // 用来设置参数
@@ -245,8 +265,8 @@ public class WebMagic implements PageProcessor {
      */
     Site site = Site
             .me()
-            .setTimeOut(10000*6) // 设置超时时间，60秒,服务器在国外设置大一些
-            .setRetrySleepTime(3 * 1000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
+            .setTimeOut(10000 * 6) // 设置超时时间，60秒,服务器在国外设置大一些
+            .setRetrySleepTime(6 * 1000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
             .setRetryTimes(10) // 设置重试次数
             .setCharset("UTF-8") // 获取UTF-8网站的数据
             .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36")

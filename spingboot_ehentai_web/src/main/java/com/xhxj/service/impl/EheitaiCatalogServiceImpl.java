@@ -55,4 +55,13 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
         eheitaiCatalogDao.save(eheitaiCatalog);
     }
+
+    /**
+     * 查询全部
+     * @return
+     */
+    @Override
+    public List<EheitaiCatalog> findAll() {
+        return eheitaiCatalogDao.findAll();
+    }
 }
