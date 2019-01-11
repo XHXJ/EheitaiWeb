@@ -84,11 +84,11 @@ public class WebMagicDate implements Pipeline {
 
                 //保存下载连接
                 eheitaiDetailPageService.saveEheitaiDetailPage(pageeheitaiDetailPage,gid);
-                System.out.println("在page获取到的为:"+pageeheitaiDetailPage+"\ngid="+gid);
+//                System.out.println("在page获取到的为:"+pageeheitaiDetailPage+"\ngid="+gid);
 
 
             }
-            System.out.println("页面没有传page参数过来");
+//            System.out.println("页面没有传page参数过来");
         }
     }
 }

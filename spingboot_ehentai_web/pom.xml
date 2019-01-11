@@ -96,7 +96,12 @@
             <artifactId>spring-jms</artifactId>
             <version>4.3.12.RELEASE</version>
         </dependency>
-
+        <!--WebMagic对布隆过滤器的支持-->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>16.0</version>
+        </dependency>
 
     </dependencies>
 

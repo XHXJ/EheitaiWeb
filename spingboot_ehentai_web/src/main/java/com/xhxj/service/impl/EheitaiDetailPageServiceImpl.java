@@ -51,7 +51,6 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
         //保存
         eheitaiCatalogDao.save(eheitaiCatalog);
-        System.out.println("下载页面的数据已成功保存sql-------------------------------");
         }else {
             System.out.println("已有爬取的下载页面存在");
         }

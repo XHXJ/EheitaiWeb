@@ -19,6 +19,8 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
+import us.codecraft.webmagic.scheduler.BloomFilterDuplicateRemover;
+import us.codecraft.webmagic.scheduler.QueueScheduler;
 import us.codecraft.webmagic.selector.Selectable;
 
 import javax.annotation.PostConstruct;
@@ -54,6 +56,7 @@ public class WebMagic implements PageProcessor {
 
     @Override
     public void process(Page page) {
+        System.out.println("当前访问网站:"+page.getUrl().toString());
 
         //在这里处理获取到的页面
         List<String> list = page.getHtml().css("div.gdtm a").links().all();
@@ -64,17 +67,16 @@ public class WebMagic implements PageProcessor {
             count++;
         } else {
             //作品首页
-            System.out.println("第一次访问" + list.toString());
+//            System.out.println("第一次访问" + list.toString());
 
             //解析首页
             parseDetailPageHomeHtml(page);
 
             //获取首页的第二页链接
-            String string = page.getHtml().xpath("/html/body/div[3]/table/tbody/tr/td[4]/a").links().toString();
+            List<String> string = page.getHtml().xpath("/html/body/div[3]/table/tbody/tr ").links().all();
 
-            if (StringUtils.isNotEmpty(string)) {
-                list.add(string);
-            }
+
+            page.addTargetRequests(string);
             //把所有获取到的数据用过去
             page.addTargetRequests(list);
         }
@@ -86,7 +88,7 @@ public class WebMagic implements PageProcessor {
      * @param page
      */
     private void parseDetailPageImgHtml(Page page) {
-        System.out.println("这是图片页面:");
+        System.out.println("这是图片页面");
         EheitaiDetailPage eheitaiDetailPage = new EheitaiDetailPage();
         //设置当前页面地址
         eheitaiDetailPage.setUrl(page.getRequest().getUrl());
@@ -141,7 +143,7 @@ public class WebMagic implements PageProcessor {
         //这里是全部的页面信息
         String string = regex.toString();
         Document parse = Jsoup.parseBodyFragment(string);
-        System.out.println("------------------------------");
+//        System.out.println("------------------------------");
         //已获取总页数
         String text = parse.select("tr:contains(Length:)").select("td.gdt2").text();
         String[] length = text.split(" ");
@@ -186,7 +188,7 @@ public class WebMagic implements PageProcessor {
 
         page.putField("eheitaiCatalog", eheitaiCatalog);
 
-        System.out.println("解析首页完成" + eheitaiCatalog);
+//        System.out.println("解析首页完成" + eheitaiCatalog);
 
     }
 
@@ -219,10 +221,10 @@ public class WebMagic implements PageProcessor {
         //抓取页面
 
         //自己蛋疼写的轮子,至少能用
-        httpCharset = analysisUrl.getHttp();
-        System.out.println("网站的编码格式为:" + httpCharset);
-        //获取解析结果存入sql
-        analysisUrl.analysisHtml();
+//        httpCharset = analysisUrl.getHttp();
+//        System.out.println("网站的编码格式为:" + httpCharset);
+//        //获取解析结果存入sql
+//        analysisUrl.analysisHtml();
 
         //下载页面
         //获取下载链接
@@ -249,9 +251,10 @@ public class WebMagic implements PageProcessor {
 //                    .addUrl(urllist)
                     .addUrl("https://exhentai.org/g/1343299/5414dfe4db/")
                     .addPipeline(webMagicDate)
+                    .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
                     .thread(100);
 
-            System.out.println("要爬的网站路径~~~~~~" + url);
+//            System.out.println("要爬的网站路径~~~~~~" + url);
             //只去爬详情页面的数据
 
 
@@ -261,7 +264,7 @@ public class WebMagic implements PageProcessor {
             spider.setDownloader(httpClientDownloader);
             spider.run();
 
-            System.out.println(count);
+//            System.out.println(count);
         } else {
             System.out.println("数据库出问题了?没数据?webmagic找不到要爬取的网页");
         }
