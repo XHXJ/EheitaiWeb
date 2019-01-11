@@ -1,4 +1,4 @@
-package com.xhxj.service;
+package com.xhxj.web;
 
 public class DownloadUrl {
 

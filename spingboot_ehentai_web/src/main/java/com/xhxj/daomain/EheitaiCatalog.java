@@ -17,18 +17,32 @@ public class EheitaiCatalog implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     //标题
-    private String title;
+    @Column(name = "title",nullable = false, length = 100)
+    private String title = "";
     //作品连接
-    private String url;
+    @Column(nullable = false)
+    private String url = "";
     //预览图标
-    private String imgUrl;
+    @Column(nullable = false)
+    private String imgUrl = "";
     //时间转换
-    private Date Posted;
+    @Column(nullable = false)
+    private Date PostedDate = new Date(0);
     //总页数
-    private String Language;
+    @Column(nullable = false)
+    private Integer Length = 0;
+    //作品语言
+    @Column(name = "language",nullable = false, length = 20)
+    private String Language = "";
     //文件大小
-    private String FileSize;
-    //
+    @Column(name = "file_size",nullable = false, length = 20)
+    private String FileSize = "";
+    //他的父对象,我不知道有啥用,应该是个历史记录的id
+    @Column(nullable = false)
+    private Integer Parent = 0;
+    //这个地址和id相加就是网站链接
+    @Column(nullable = false)
+    private String token = "";
 
     /**
      * Posted:	2018-12-13 10:03 时间
@@ -40,16 +54,17 @@ public class EheitaiCatalog implements Serializable {
      * Favorited:	1445 times
      */
     //是否成功下载
+    @Column(nullable = false)
     private Integer complete = 0;
 
 
-//外键
-    @Column(name = "div_id")
-    private Integer divId;
+    //外键,也是g站整个作品的id
+    @Column(name = "gid", nullable = false)
+    private Integer gid;
 
 
     @OneToMany(targetEntity = EheitaiDetailPage.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "eheitai_id", referencedColumnName = "div_id")
+    @JoinColumn(name = "eheitai_id", referencedColumnName = "gid")
     private Set<EheitaiDetailPage> eheitaiDetailPages = new HashSet<EheitaiDetailPage>();
 
 }

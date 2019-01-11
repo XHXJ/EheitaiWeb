@@ -4,12 +4,13 @@ import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiDetailPage;
-import com.xhxj.service.AnalysisUrl;
+import com.xhxj.service.EheitaiCatalogService;
+import com.xhxj.service.EheitaiDetailPageService;
+import com.xhxj.web.AnalysisUrl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.annotation.Transient;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class SpingbootEhentaiWebApplicationTests {
 
     @Autowired
-    EheitaiDetailPageDao eheitaiDetailPageDao;
+    EheitaiDetailPageService eheitaiDetailPageDao;
     @Autowired
-    EheitaiCatalogDao eheitaiCatalogDao;
+    EheitaiCatalogService eheitaiCatalogDao;
 
     @Test
     @Transactional
@@ -29,7 +30,7 @@ public class SpingbootEhentaiWebApplicationTests {
     public void contextLoads() {
 
         EheitaiCatalog eheitaiCatalog = new EheitaiCatalog();
-        eheitaiCatalog.setDivId(123);
+        eheitaiCatalog.setGid(123);
         eheitaiCatalog.setTitle("好的一个标题");
         EheitaiDetailPage eheitaiDetailPage = new EheitaiDetailPage();
         eheitaiDetailPage.setLanguage("中文");
@@ -50,8 +51,10 @@ public class SpingbootEhentaiWebApplicationTests {
 
 
     @Test
+    @Transactional
+    @Rollback(false) //不自动回滚
     public void Test01(){
-        analysisUrl.getHttp();
+        //analysisUrl.getHttp();
         //获取解析结果存入sql
         analysisUrl.analysisHtml();
         //下载页面

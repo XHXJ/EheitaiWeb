@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface EheitaiCatalogDao extends JpaRepository<EheitaiCatalog,Integer>, JpaSpecificationExecutor<EheitaiCatalog> {
-     List<EheitaiCatalog> findByDivId(Integer divId);
+     List<EheitaiCatalog> findByGid(Integer divId);
 }
 

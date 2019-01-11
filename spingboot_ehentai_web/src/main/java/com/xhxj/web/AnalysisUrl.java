@@ -1,10 +1,11 @@
-package com.xhxj.service;
+package com.xhxj.web;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiSearch;
+import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.utils.Json;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
@@ -43,8 +44,9 @@ public class AnalysisUrl {
     @Value("${catalog}")
     private String catalog;
 
+
     @Autowired
-    private EheitaiCatalogDao eheitaiCatalogDao;
+    EheitaiCatalogService eheitaiCatalogDao;
 
 
     //使用连接池
@@ -79,7 +81,7 @@ public class AnalysisUrl {
                     System.out.println("-------------------------------------");
                     String id = it2.first().id();
 
-                    eheitaiCatalog.setDivId(Integer.parseInt(id.replace("i", "")));
+                    eheitaiCatalog.setGid(Integer.parseInt(id.replace("i", "")));
                     Elements img = it2.select("img");
                     eheitaiCatalog.setImgUrl(img.attr("src"));
                     eheitaiCatalog.setTitle(img.attr("alt"));
@@ -90,7 +92,7 @@ public class AnalysisUrl {
                     //从这里开始第二个作品
                     Elements it2 = element.select(".it2");
                     String id = it2.first().id();
-                    eheitaiCatalog.setDivId(Integer.parseInt(id.replace("i", "")));
+                    eheitaiCatalog.setGid(Integer.parseInt(id.replace("i", "")));
                     //获取所需要的其他信息
                     String[] split = it2.text().split("~");
 //        https://exhentai.org/t/2d/fb/2dfb69d52de3a6f534c0ef7ce676167d2399c93d-455677-1061-1500-jpg_l.jpg
@@ -105,10 +107,10 @@ public class AnalysisUrl {
             }
             //把采集的数据保存到数据库
             //确定采集的数据没问题不为空
-            if (eheitaiCatalog.getDivId() != null && !eheitaiCatalog.getDivId().equals("")) {
+            if (eheitaiCatalog.getGid() != null && !eheitaiCatalog.getGid().equals("")) {
                 //如果没有才保存,有不保存
 
-                List<EheitaiCatalog> byDivId = eheitaiCatalogDao.findByDivId(eheitaiCatalog.getDivId());
+                List<EheitaiCatalog> byDivId = eheitaiCatalogDao.findByGid(eheitaiCatalog.getGid());
 
                 if (byDivId == null || byDivId.size() == 0) {
 
@@ -305,7 +307,7 @@ public class AnalysisUrl {
      * @param content 爬取网站的io流
      * @throws IOException
      */
-    public   void getFileOutputStream(InputStream content, String url)  {
+    public void getFileOutputStream(InputStream content, String url) {
         try {
             //写出文件看看乍回事
             FileOutputStream downloadFile = new FileOutputStream(url);

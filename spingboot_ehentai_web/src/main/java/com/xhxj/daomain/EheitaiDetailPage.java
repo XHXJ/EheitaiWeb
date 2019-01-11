@@ -23,7 +23,7 @@ public class EheitaiDetailPage  implements Serializable {
   private String url;
 
   @ManyToOne(targetEntity = EheitaiCatalog.class)
-  @JoinColumn(name = "eheitai_id", referencedColumnName = "div_id")
+  @JoinColumn(name = "eheitai_id", referencedColumnName = "gid")
   private EheitaiCatalog eheitaiCatalog;
 
 

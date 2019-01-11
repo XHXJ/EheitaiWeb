@@ -1,28 +1,19 @@
-package com.xhxj.service;
+package com.xhxj.web;
 
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
-import us.codecraft.webmagic.pipeline.ConsolePipeline;
-import us.codecraft.webmagic.pipeline.FilePipeline;
-import us.codecraft.webmagic.pipeline.JsonFilePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
-import us.codecraft.webmagic.selector.AbstractSelectable;
-import us.codecraft.webmagic.selector.HtmlNode;
 import us.codecraft.webmagic.selector.Selectable;
 
 import javax.annotation.PostConstruct;
@@ -31,7 +22,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class WebMagic implements PageProcessor {
@@ -58,7 +48,7 @@ public class WebMagic implements PageProcessor {
 
         //在这里处理获取到的页面
         List<String> list = page.getHtml().css("div.gdtm a").links().all();
-        if (list == null||list.size()==0) {
+        if (list == null || list.size() == 0) {
             //如果空了就说明当前是在图片页面
             System.out.println("这是图片页面:");
             System.out.println(page.getRequest().getUrl());
@@ -67,11 +57,10 @@ public class WebMagic implements PageProcessor {
             //获取当前的连接
             String url = page.getRequest().getUrl();
             //我得获取它是第几页
-            System.out.println("这是第:"+page.getHtml().css("div.sn>div>span ","text").toString());
+            System.out.println("这是第:" + page.getHtml().css("div.sn>div>span ", "text").toString());
 
 
             //获取当前文件叫什么名
-
 
 
             //如果到了最后一页他的图片地址应该是和当前是重复的.
@@ -89,12 +78,23 @@ public class WebMagic implements PageProcessor {
             System.out.println("------------------------------");
             //已获取总页数
             String text = parse.select("tr:contains(Length:)").select("td.gdt2").text();
-
+            String[] length = text.split(" ");
             //获取上传的时间
             String posted = parse.select("tr:contains(Posted:)").select("td.gdt2").text();
-
             //获取文件大小
             String fileSize = parse.select("tr:contains(File Size:)").select("td.gdt2").text();
+            //获取页面语言
+            String language = parse.select("tr:contains(Language:)").select("td.gdt2").text();
+            //这个是父id,可以更具这个id去查看历史记录:暂时不知道他有啥用
+            String eid = parse.select("tr:contains(Parent:)").select("td.gdt2").text();
+            //这是网站的真实id,更具这个去更新数据
+            List<String> all = page.getHtml().xpath("//script[@type]").all();
+            String gid = all.get(1).split("\n")[4].split(" ")[3].replace(";","");
+            //这个地址和id相加就是网站链接
+            List<String> all1 = page.getHtml().xpath("//script[@type]").all();
+            String token = all1.get(1).split("\n")[5].split(" ")[3].replace(";","");
+
+
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd ss:HH");
             Date postedDate = new Date();
             try {
@@ -104,14 +104,23 @@ public class WebMagic implements PageProcessor {
                 e.printStackTrace();
             }
 
-            System.out.println("上传文件的大小"+fileSize);
 
-            System.out.println("上传的时间是"+postedDate);
-            //xpath.$("td.gdt2","text").toString();
-            System.out.println("一共有多少页"+text);
-//            page.putField("totalpages",text);
+            //把上面获取的东西存入对象
+            EheitaiCatalog eheitaiCatalog = new EheitaiCatalog();
+            eheitaiCatalog.setLength(Integer.valueOf(length[0]));
+            eheitaiCatalog.setPostedDate(postedDate);
+            eheitaiCatalog.setFileSize(fileSize);
+            eheitaiCatalog.setLanguage(language);
+            eheitaiCatalog.setParent(Integer.valueOf(eid));
+            eheitaiCatalog.setGid(Integer.valueOf(gid));
+            eheitaiCatalog.setToken(token);
 
-            page.addTargetRequest(list.get(list.size()-1));
+
+            page.putField("eheitaiCatalog",eheitaiCatalog);
+
+            System.out.println(eheitaiCatalog);
+
+            page.addTargetRequest(list.get(list.size() - 1));
         }
 
 
@@ -160,13 +169,18 @@ public class WebMagic implements PageProcessor {
         //应该写service层的..
         String url = "";
         String title = "";
+        int divId = 1329034;
         //要爬取得数据的divid
-        List<EheitaiCatalog> byDivId = eheitaiCatalogDao.findByDivId(1329034);
+        List<EheitaiCatalog> byDivId = eheitaiCatalogDao.findByGid(divId);
+        //判断获取的作品不要是空的
+        if (byDivId.size()!=0){
+
+
+
         for (EheitaiCatalog eheitaiCatalog : byDivId) {
             url = eheitaiCatalog.getUrl();
             title = eheitaiCatalog.getTitle();
         }
-        System.out.println("e://" + title + "/title/" + UUID.randomUUID() + ".html");
 
         System.out.println("要爬的网站路径~~~~~~" + url);
         //只去爬详情页面的数据
@@ -180,6 +194,9 @@ public class WebMagic implements PageProcessor {
         httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(new Proxy("127.0.0.1", 1081)));
         spider.setDownloader(httpClientDownloader);
         spider.run();
+        }else {
+            System.out.println("作品id:"+divId+"没有爬取连接,webmagic找不到要爬取的网页");
+        }
     }
     // 用来设置参数
     /**
