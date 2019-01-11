@@ -48,6 +48,10 @@ public class WebMagic implements PageProcessor {
     //设置一个变量储存当前图片地址用来对比是否到了最后一页
     private String imgSrc = "";
 
+    private double count = 0l;
+
+
+
     @Override
     public void process(Page page) {
 
@@ -57,6 +61,7 @@ public class WebMagic implements PageProcessor {
             //图片页面
             parseDetailPageImgHtml(page);
 
+            count++;
         } else {
             //作品首页
             System.out.println("第一次访问" + list.toString());
@@ -214,10 +219,10 @@ public class WebMagic implements PageProcessor {
         //抓取页面
 
         //自己蛋疼写的轮子,至少能用
-//        httpCharset = analysisUrl.getHttp();
-//        System.out.println("网站的编码格式为:" + httpCharset);
-//        //获取解析结果存入sql
-//        analysisUrl.analysisHtml();
+        httpCharset = analysisUrl.getHttp();
+        System.out.println("网站的编码格式为:" + httpCharset);
+        //获取解析结果存入sql
+        analysisUrl.analysisHtml();
 
         //下载页面
         //获取下载链接
@@ -242,7 +247,7 @@ public class WebMagic implements PageProcessor {
             //给爬虫设置参数
             spider = Spider.create(new WebMagic())
 //                    .addUrl(urllist)
-                    .addUrl("https://exhentai.org/s/3eb06292a3/1344692-99")
+                    .addUrl("https://exhentai.org/g/1343299/5414dfe4db/")
                     .addPipeline(webMagicDate)
                     .thread(100);
 
@@ -255,6 +260,8 @@ public class WebMagic implements PageProcessor {
             httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(new Proxy("127.0.0.1", 1081)));
             spider.setDownloader(httpClientDownloader);
             spider.run();
+
+            System.out.println(count);
         } else {
             System.out.println("数据库出问题了?没数据?webmagic找不到要爬取的网页");
         }

@@ -6,12 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="spingboot_ehentai_download" />
         <module name="spingboot_ehentai_web" />
         <module name="webmagic-core" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="ehentaiweb" target="1.8" />
+      <module name="spingboot_ehentai_download" target="1.8" />
       <module name="spingboot_ehentai_web" target="1.8" />
       <module name="webmagic-core" target="1.6" />
     </bytecodeTargetLevel>
@@ -19,6 +21,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="ehentaiweb" options="-parameters" />
+      <module name="spingboot_ehentai_download" options="-parameters" />
       <module name="spingboot_ehentai_web" options="-parameters" />
     </option>
   </component>

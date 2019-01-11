@@ -7,6 +7,7 @@ import com.xhxj.daomain.EheitaiDetailPage;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
 import com.xhxj.web.AnalysisUrl;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,10 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Session;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -67,6 +72,8 @@ public class SpingbootEhentaiWebApplicationTests {
         //下载页面
 
     }
+
+
 
 
 }

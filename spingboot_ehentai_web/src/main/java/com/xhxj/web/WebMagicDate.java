@@ -13,6 +13,7 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
+import javax.jms.JMSException;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,9 @@ public class WebMagicDate implements Pipeline {
     @Autowired
     EheitaiDetailPageService eheitaiDetailPageService;
 
+    @Autowired
+    ActiveMqQueueProduce activeMqQueueProduce;
+
 
 
     @Override
@@ -41,6 +45,12 @@ public class WebMagicDate implements Pipeline {
         if (StringUtils.isNotEmpty(complete)){
             //作品爬取完毕,通知下载器下载
             System.out.println("@@@@@@@@@@@@@@@@@@作品:"+complete+"爬取完毕通知下载");
+            try {
+                activeMqQueueProduce.postMessage(complete);
+            } catch (JMSException e) {
+                System.out.println("发送消息失败,请检查ActiveMQ是否启动");
+                e.printStackTrace();
+            }
 
         }
         //接收eheitaiCatalog参数,否则放过

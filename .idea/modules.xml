@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/spingboot_ehentai_download/spingboot_ehentai_download.iml" filepath="$PROJECT_DIR$/spingboot_ehentai_download/spingboot_ehentai_download.iml" />
       <module fileurl="file://$PROJECT_DIR$/spingboot_ehentai_web/spingboot_ehentai_web.iml" filepath="$PROJECT_DIR$/spingboot_ehentai_web/spingboot_ehentai_web.iml" />
       <module fileurl="file://$PROJECT_DIR$/webmagic-core/webmagic-core.iml" filepath="$PROJECT_DIR$/webmagic-core/webmagic-core.iml" />
     </modules>

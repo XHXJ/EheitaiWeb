@@ -8,6 +8,7 @@
       <list>
         <option value="$PROJECT_DIR$/webmagic-core/pom.xml" />
         <option value="$PROJECT_DIR$/spingboot_ehentai_web/pom.xml" />
+        <option value="$PROJECT_DIR$/spingboot_ehentai_download/pom.xml" />
       </list>
     </option>
   </component>
