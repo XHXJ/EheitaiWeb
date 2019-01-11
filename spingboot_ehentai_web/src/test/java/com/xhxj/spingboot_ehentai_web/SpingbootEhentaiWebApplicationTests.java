@@ -43,9 +43,7 @@ public class SpingbootEhentaiWebApplicationTests {
         eheitaiCatalog.setGid(123);
         eheitaiCatalog.setTitle("好的一个标题");
         EheitaiDetailPage eheitaiDetailPage = new EheitaiDetailPage();
-        eheitaiDetailPage.setLanguage("中文");
         EheitaiDetailPage eheitaiDetailPage1 = new EheitaiDetailPage();
-        eheitaiDetailPage1.setLanguage("英文");
         eheitaiCatalog.getEheitaiDetailPages().add(eheitaiDetailPage);
         eheitaiCatalog.getEheitaiDetailPages().add(eheitaiDetailPage1);
 

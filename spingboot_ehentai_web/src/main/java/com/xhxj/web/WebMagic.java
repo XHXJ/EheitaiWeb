@@ -3,6 +3,7 @@ package com.xhxj.web;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
+import com.xhxj.daomain.EheitaiDetailPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,81 +52,118 @@ public class WebMagic implements PageProcessor {
         List<String> list = page.getHtml().css("div.gdtm a").links().all();
         if (list == null || list.size() == 0) {
             //如果空了就说明当前是在图片页面
-            System.out.println("这是图片页面:");
-            System.out.println(page.getRequest().getUrl());
-
-
-            //获取当前的连接
-            String url = page.getRequest().getUrl();
-            //我得获取它是第几页
-            System.out.println("这是第:" + page.getHtml().css("div.sn>div>span ", "text").toString());
-
-
-            //获取当前文件叫什么名
-
-
-            //如果到了最后一页他的图片地址应该是和当前是重复的.
-
-
+            parseDetailPageImgHtml(page);
         } else {
             //没空就说明还在首页
             System.out.println("第一次访问" + list.toString());
-            //把这个页面丢给爬虫去访问
-            //获取总页数储存到数据库中去
-            Selectable regex = page.getHtml().$("div#gdd ");
-            //这里是全部的页面信息
-            String string = regex.toString();
-            Document parse = Jsoup.parseBodyFragment(string);
-            System.out.println("------------------------------");
-            //已获取总页数
-            String text = parse.select("tr:contains(Length:)").select("td.gdt2").text();
-            String[] length = text.split(" ");
-            //获取上传的时间
-            String posted = parse.select("tr:contains(Posted:)").select("td.gdt2").text();
-            //获取文件大小
-            String fileSize = parse.select("tr:contains(File Size:)").select("td.gdt2").text();
-            //获取页面语言
-            String language = parse.select("tr:contains(Language:)").select("td.gdt2").text();
-            //这个是父id,可以更具这个id去查看历史记录:暂时不知道他有啥用
-            String eid = parse.select("tr:contains(Parent:)").select("td.gdt2").text();
-            //这是网站的真实id,更具这个去更新数据
-            List<String> all = page.getHtml().xpath("//script[@type]").all();
-            String gid = all.get(1).split("\n")[4].split(" ")[3].replace(";","");
-            //这个地址和id相加就是网站链接
-            List<String> all1 = page.getHtml().xpath("//script[@type]").all();
-            String token = all1.get(1).split("\n")[5].split(" ")[3].replace(";","");
 
+            //解析首页
+            parseDetailPageHomeHtml(page);
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd ss:HH");
-            Date postedDate = new Date();
-            try {
-                postedDate = simpleDateFormat.parse(posted);
-            } catch (ParseException e) {
-                System.out.println("解析页面时转换时间出错");
-                e.printStackTrace();
-            }
-
-
-            //把上面获取的东西存入对象
-            EheitaiCatalog eheitaiCatalog = new EheitaiCatalog();
-            eheitaiCatalog.setLength(Integer.valueOf(length[0]));
-            eheitaiCatalog.setPostedDate(postedDate);
-            eheitaiCatalog.setFileSize(fileSize);
-            eheitaiCatalog.setLanguage(language);
-            eheitaiCatalog.setParent(Integer.valueOf(eid));
-            eheitaiCatalog.setGid(Integer.valueOf(gid));
-            eheitaiCatalog.setToken(token);
-
-
-            page.putField("eheitaiCatalog",eheitaiCatalog);
-
-            System.out.println(eheitaiCatalog);
-
-            page.addTargetRequest(list.get(list.size() - 1));
+            //把所有获取到的数据用过去
+            page.addTargetRequests(list);
         }
 
 
 //        page.putField("jobInfo",all);
+
+    }
+
+    /**
+     * 解析图片下载页面
+     * @param page
+     */
+    private void parseDetailPageImgHtml(Page page) {
+        System.out.println("这是图片页面:");
+        EheitaiDetailPage eheitaiDetailPage = new EheitaiDetailPage();
+        //设置当前页面地址
+        eheitaiDetailPage.setUrl(page.getRequest().getUrl());
+        //设置文件信息
+        String filelog = page.getHtml().$("div#i2>div").all().get(1);
+        String[] divs  = Jsoup.parseBodyFragment(filelog).select("div").text().split(" :: ");
+        eheitaiDetailPage.setFileLog(divs[0]);
+        eheitaiDetailPage.setResolution(divs[1]);
+        eheitaiDetailPage.setFileSize(divs[2]);
+
+        //设置当前第几页
+        eheitaiDetailPage.setPage(Integer.parseInt(page.getHtml().css("div.sn>div>span ", "text").toString()));
+        //设置当前图片下载地址
+//        eheitaiDetailPage.setImgUrl();
+        Document document = Jsoup.parseBodyFragment(page.getHtml().$("div#i3").toString());
+        String imgurl = document.select("img").attr("src");
+        eheitaiDetailPage.setImgUrl(imgurl);
+        //获取gid
+        String gid = page.getHtml().xpath("/html/body/script[2]").toString().split("<script type=\"text/javascript\">")[1].split("</script>")[0].split(";")[0].split(" ")[1].split("=")[1];
+
+        Integer integer = Integer.valueOf(gid);
+        //把所需要的对象传过去
+        page.putField("eheitaiDetailPage",eheitaiDetailPage);
+        page.putField("gid",integer);
+
+
+
+
+
+
+
+        //如果到了最后一页他的图片地址应该是和当前是重复的.
+    }
+
+    /**
+     * 获取首页的解析
+     * @param page
+     */
+    private void parseDetailPageHomeHtml(Page page) {
+
+        //获取总页数储存到数据库中去
+        Selectable regex = page.getHtml().$("div#gdd ");
+        //这里是全部的页面信息
+        String string = regex.toString();
+        Document parse = Jsoup.parseBodyFragment(string);
+        System.out.println("------------------------------");
+        //已获取总页数
+        String text = parse.select("tr:contains(Length:)").select("td.gdt2").text();
+        String[] length = text.split(" ");
+        //获取上传的时间
+        String posted = parse.select("tr:contains(Posted:)").select("td.gdt2").text();
+        //获取文件大小
+        String fileSize = parse.select("tr:contains(File Size:)").select("td.gdt2").text();
+        //获取页面语言
+        String language = parse.select("tr:contains(Language:)").select("td.gdt2").text();
+        //这个是父id,可以更具这个id去查看历史记录:暂时不知道他有啥用
+        String eid = parse.select("tr:contains(Parent:)").select("td.gdt2").text();
+        //这是网站的真实id,更具这个去更新数据
+        List<String> all = page.getHtml().xpath("//script[@type]").all();
+        String gid = all.get(1).split("\n")[4].split(" ")[3].replace(";","");
+        //这个地址和id相加就是网站链接
+        List<String> all1 = page.getHtml().xpath("//script[@type]").all();
+        String token = all1.get(1).split("\n")[5].split(" ")[3].replace(";","");
+
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd ss:HH");
+        Date postedDate = new Date();
+        try {
+            postedDate = simpleDateFormat.parse(posted);
+        } catch (ParseException e) {
+            System.out.println("解析页面时转换时间出错");
+            e.printStackTrace();
+        }
+
+
+        //把上面获取的东西存入对象
+        EheitaiCatalog eheitaiCatalog = new EheitaiCatalog();
+        eheitaiCatalog.setLength(Integer.valueOf(length[0]));
+        eheitaiCatalog.setPostedDate(postedDate);
+        eheitaiCatalog.setFileSize(fileSize);
+        eheitaiCatalog.setLanguage(language);
+        eheitaiCatalog.setParent(Integer.valueOf(eid));
+        eheitaiCatalog.setGid(Integer.valueOf(gid));
+        eheitaiCatalog.setToken(token);
+
+
+        page.putField("eheitaiCatalog",eheitaiCatalog);
+
+        System.out.println("解析首页完成"+eheitaiCatalog);
 
     }
 
@@ -158,12 +196,10 @@ public class WebMagic implements PageProcessor {
         //抓取页面
 
         //自己蛋疼写的轮子,至少能用
-/*
-        httpCharset = analysisUrl.getHttp();
-        System.out.println("网站的编码格式为:" + httpCharset);
-        //获取解析结果存入sql
-        analysisUrl.analysisHtml();
-*/
+//        httpCharset = analysisUrl.getHttp();
+//        System.out.println("网站的编码格式为:" + httpCharset);
+//        //获取解析结果存入sql
+//        analysisUrl.analysisHtml();
 
         //下载页面
         //获取下载链接
@@ -186,12 +222,15 @@ public class WebMagic implements PageProcessor {
 
         System.out.println("要爬的网站路径~~~~~~" + url);
         //只去爬详情页面的数据
-        Spider spider = Spider.create(new WebMagic())
-                .addUrl(url)
-                .addPipeline(webMagicDate)
-                .thread(1);
+            Spider spider = null;
 
-        //设置爬虫代理
+                spider = Spider.create(new WebMagic())
+                        .addUrl(url)
+                        .addPipeline(webMagicDate)
+                        .thread(10);
+
+
+            //设置爬虫代理
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
         httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(new Proxy("127.0.0.1", 1081)));
         spider.setDownloader(httpClientDownloader);
@@ -202,13 +241,13 @@ public class WebMagic implements PageProcessor {
     }
     // 用来设置参数
     /**
-     * Site.me()可以对爬虫进行一些参数配置，包括编码、超时时间、重试时间、重试次数等。在这里我们先简单设置一下：重试次数为3次，重试时间为3秒。
+     * Site.me()可以对爬虫进行一些参数配置，包括编码、超时时间、重试时间、重试次数等
      */
     Site site = Site
             .me()
-            .setTimeOut(10 * 1000) // 设置超时时间，10秒
+            .setTimeOut(10000*6) // 设置超时时间，60秒,服务器在国外设置大一些
             .setRetrySleepTime(3 * 1000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
-            .setRetryTimes(3) // 设置重试次数
+            .setRetryTimes(10) // 设置重试次数
             .setCharset("UTF-8") // 获取UTF-8网站的数据
             .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36")
             .addHeader("Cookie", "igneous=6c63cbdc0; ipb_member_id=805259; ipb_pass_hash=1a0592e854f1b08bcb9c2eb40b6455de; yay=0; lv=1546944712-1546960410");
