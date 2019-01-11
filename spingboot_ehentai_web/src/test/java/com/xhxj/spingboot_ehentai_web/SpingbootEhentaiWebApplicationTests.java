@@ -15,6 +15,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SpingbootEhentaiWebApplicationTests {
@@ -23,6 +25,14 @@ public class SpingbootEhentaiWebApplicationTests {
     EheitaiDetailPageService eheitaiDetailPageDao;
     @Autowired
     EheitaiCatalogService eheitaiCatalogDao;
+
+    @Test
+    public void testdemo(){
+        List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(1329034);
+        for (EheitaiCatalog eheitaiCatalog : byGid) {
+            System.out.println(eheitaiCatalog);
+        }
+    }
 
     @Test
     @Transactional
@@ -52,7 +62,6 @@ public class SpingbootEhentaiWebApplicationTests {
 
     @Test
     @Transactional
-    @Rollback(false) //不自动回滚
     public void Test01(){
         //analysisUrl.getHttp();
         //获取解析结果存入sql

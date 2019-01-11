@@ -13,36 +13,57 @@ import java.util.Set;
 @Entity
 @ToString(exclude = {"eheitaiDetailPages"})
 public class EheitaiCatalog implements Serializable {
+    //    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Integer id;
+//    //标题
+//    @Column(name = "title",nullable = false, length = 100)
+//    private String title = "";
+//    //作品连接
+//    @Column(nullable = false)
+//    private String url = "";
+//    //预览图标
+//    @Column(nullable = false)
+//    private String imgUrl = "";
+//    //时间转换
+//    @Column(nullable = false)
+//    private Date PostedDate = new Date(0);
+//    //总页数
+//    @Column(nullable = false)
+//    private Integer Length = 0;
+//    //作品语言
+//    @Column(name = "language",nullable = false, length = 20)
+//    private String Language = "";
+//    //文件大小
+//    @Column(name = "file_size",nullable = false, length = 20)
+//    private String FileSize = "";
+//    //他的父对象,我不知道有啥用,应该是个历史记录的id
+//    @Column(nullable = false)
+//    private Integer Parent = 0;
+//    //这个地址和id相加就是网站链接
+//    @Column(nullable = false)
+//    private String token = "";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     //标题
-    @Column(name = "title",nullable = false, length = 100)
-    private String title = "";
+    private String title ;
     //作品连接
-    @Column(nullable = false)
-    private String url = "";
+    private String url ;
     //预览图标
-    @Column(nullable = false)
-    private String imgUrl = "";
+    private String imgUrl ;
     //时间转换
-    @Column(nullable = false)
-    private Date PostedDate = new Date(0);
+    private Date PostedDate ;
     //总页数
-    @Column(nullable = false)
-    private Integer Length = 0;
+    private Integer Length ;
     //作品语言
-    @Column(name = "language",nullable = false, length = 20)
-    private String Language = "";
+    private String Language ;
     //文件大小
-    @Column(name = "file_size",nullable = false, length = 20)
-    private String FileSize = "";
+    private String FileSize ;
     //他的父对象,我不知道有啥用,应该是个历史记录的id
-    @Column(nullable = false)
-    private Integer Parent = 0;
+    private Integer Parent ;
     //这个地址和id相加就是网站链接
-    @Column(nullable = false)
-    private String token = "";
+    private String token ;
 
     /**
      * Posted:	2018-12-13 10:03 时间

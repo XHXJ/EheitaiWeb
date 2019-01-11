@@ -6,6 +6,7 @@ import com.xhxj.daomain.EheitaiCatalog;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
@@ -151,7 +152,8 @@ public class WebMagic implements PageProcessor {
     }
 
 
-    @PostConstruct
+//    @PostConstruct
+@Scheduled(initialDelay = 1000,fixedDelay = 1*60*60*1000)
     public void httpweb() {
         //抓取页面
 
