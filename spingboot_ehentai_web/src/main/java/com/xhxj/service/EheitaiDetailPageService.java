@@ -2,6 +2,8 @@ package com.xhxj.service;
 
 import com.xhxj.daomain.EheitaiDetailPage;
 
+import java.util.List;
+
 public interface EheitaiDetailPageService {
 
     //保存对象
@@ -19,5 +21,5 @@ public interface EheitaiDetailPageService {
      * 查询下载失败509的数据
      * @return
      */
-    EheitaiDetailPage findByImgUrl509();
+    List<String> findByImgUrl509();
 }

@@ -76,7 +76,7 @@ public class WebMagic implements PageProcessor {
 
             page.addTargetRequests(string);
             //把所有获取到的数据用过去
-            addUrl(page,list);
+            addUrl(page, list);
 
 
         }
@@ -85,6 +85,7 @@ public class WebMagic implements PageProcessor {
 
     /**
      * 去测试一下如果连接已经在数据库中,就不要去访问了
+     *
      * @param page 用来调用添加连接的方法
      * @param list 用来
      */
@@ -250,9 +251,15 @@ public class WebMagic implements PageProcessor {
         return site;
     }
 
+
     //    @PostConstruct
-    @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
-    public void httpweb() {
+//    @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
+
+    /**
+     * 爬虫开始的地方
+     * @param url 需要爬取的连接
+     */
+    public void httpweb(List<String> url) {
         //抓取页面
 
         //自己蛋疼写的轮子,至少能用
@@ -265,12 +272,11 @@ public class WebMagic implements PageProcessor {
         //获取下载链接
 
         //应该写service层的..
-        String url = "";
-
-        Spider spider = null;
 
 
-        //把sql中没有爬的连接全部丢给爬虫
+
+
+/*        //把sql中没有爬的连接全部丢给爬虫
         //这里以后要改要有条件的查询
 
         List<EheitaiCatalog> all = eheitaiCatalogDao.findAll();
@@ -281,31 +287,34 @@ public class WebMagic implements PageProcessor {
                 urlall.add(eheitaiCatalog.getUrl());
             }
             String[] urllist = urlall.toArray(new String[urlall.size()]);
-            //给爬虫设置参数
-            spider = Spider.create(new WebMagic())
-                    .addUrl(urllist)
-//                    .addUrl("https://exhentai.org/s/8caa9bdf36/1343299-1235")
-                    .addPipeline(webMagicDate)
-                    .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
-                    .thread(100);
+            */
+
+        if (url!=null||url.size()!=0){
+
+
+        String[] strings = url.toArray(new String[url.size()]);
+        //给爬虫设置参数
+        Spider spider = Spider.create(new WebMagic())
+                .addUrl(strings)
+                .addPipeline(webMagicDate)
+                //设置去重
+                .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
+                .thread(100);
 
 //            System.out.println("要爬的网站路径~~~~~~" + url);
-            //只去爬详情页面的数据
+        //只去爬详情页面的数据
 
 
-            //设置爬虫代理
-            HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-            httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(new Proxy("127.0.0.1", 1081)));
-            spider.setDownloader(httpClientDownloader);
-            spider.run();
+        //设置爬虫代理
+        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+        httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(new Proxy("127.0.0.1", 1081)));
+        spider.setDownloader(httpClientDownloader);
+        spider.run();
 
-            //整个爬虫爬取完毕
-
+        //整个爬虫爬取完毕
+        }
 
 //            System.out.println(count);
-        } else {
-            System.out.println("数据库出问题了?没数据?webmagic找不到要爬取的网页");
-        }
     }
 
 }

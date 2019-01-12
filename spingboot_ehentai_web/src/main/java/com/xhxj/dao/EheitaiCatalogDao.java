@@ -10,10 +10,10 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface EheitaiCatalogDao extends JpaRepository<EheitaiCatalog,Integer>, JpaSpecificationExecutor<EheitaiCatalog> {
-     List<EheitaiCatalog> findByGid(Integer divId);
 
-//查询509的图片
-    @Query(value = "SELECT count(*) FROM eheitai_detail_page WHERE eheitai_detail_page.img_url = 'https://exhentai.org/img/509.gif'",nativeQuery = true)
-    EheitaiDetailPage findByImgUrl509();
+    //根据gid查询对象
+    List<EheitaiCatalog> findByGid(Integer divId);
+
+
 }
 

@@ -7,6 +7,7 @@ import com.xhxj.daomain.EheitaiDetailPage;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
 import com.xhxj.web.AnalysisUrl;
+import com.xhxj.web.WebMagic;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,11 +74,17 @@ public class SpingbootEhentaiWebApplicationTests {
 
     }
 
+    @Autowired
+    WebMagic webMagic;
+
     @Test
     public void TestQ509(){
         //查询sql中没有下载成功的509数据
-        EheitaiDetailPage eheitaiDetailPage = eheitaiDetailPageDao.findByImgUrl509();
+        List<String> eheitaiDetailPage = eheitaiDetailPageDao.findByImgUrl509();
 
+        //这些连接是需要重新下载的
+
+        webMagic.httpweb(eheitaiDetailPage);
     }
 
 

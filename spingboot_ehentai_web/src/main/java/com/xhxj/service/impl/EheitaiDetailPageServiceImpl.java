@@ -31,6 +31,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
     /**
      * 根据gid外键去保存对象
+     * 并判断是否重复
      *
      * @param pageeheitaiDetailPage page页面传过来的参数
      * @param gid                   外键
@@ -40,32 +41,40 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
         Integer page = pageeheitaiDetailPage.getPage();
         //先去查询有没有这个页数了不然不保存
-        List<EheitaiDetailPage> byImgUrlAndPage = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
+        EheitaiDetailPage byImgUrlAndPage = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
 
-        if (byImgUrlAndPage.size() == 0) {
-            //如果是空才去保存,不重复抓取数据
+        //如果之前都没有这个数据,别废话直接存
 
-            List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
-            EheitaiCatalog eheitaiCatalog = byGid.get(0);
+        if (byImgUrlAndPage == null||!byImgUrlAndPage.getImgUrl().equals("https://exhentai.org/img/509.gif")) {
+            //保存图片
+            saveImg(pageeheitaiDetailPage, gid);
 
-
-            eheitaiCatalog.getEheitaiDetailPages().add(pageeheitaiDetailPage);
-
-            //保存
-            eheitaiCatalogDao.save(eheitaiCatalog);
         }
-//        else {
-//            System.out.println("已有爬取的下载页面存在");
-//        }
 
     }
 
+    /**
+     * 保存图片
+     *
+     * @param pageeheitaiDetailPage 新的图片地址
+     * @param gid                   更具主id查询
+     */
+    private void saveImg(EheitaiDetailPage pageeheitaiDetailPage, Integer gid) {
+        //新建图片保存
+
+        List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
+        EheitaiCatalog eheitaiCatalog = byGid.get(0);
+
+
+        eheitaiCatalog.getEheitaiDetailPages().add(pageeheitaiDetailPage);
+
+        //保存
+        eheitaiCatalogDao.save(eheitaiCatalog);
+    }
+
     @Override
-    public EheitaiDetailPage findByImgUrl509() {
+    public List<String> findByImgUrl509() {
 
-        EheitaiDetailPage eheitaiDetailPage= eheitaiCatalogDao.findByImgUrl509();
-
-
-        return null;
+        return eheitaiDetailPageDao.findByImgUrl509();
     }
 }
