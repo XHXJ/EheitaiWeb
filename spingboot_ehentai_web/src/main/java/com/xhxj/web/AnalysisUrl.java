@@ -27,6 +27,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -34,6 +35,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 
+@PropertySource("classpath:Configuration.properties")
 @Component
 public class AnalysisUrl {
 
@@ -139,7 +141,7 @@ public class AnalysisUrl {
     }
 
     //设置获取时的等待参数
-    private static RequestConfig setConfig() {
+    public RequestConfig setConfig() {
         //设置代理服务器
         HttpHost proxy = new HttpHost("127.0.0.1", 1081, "http");
         System.out.println(proxy);

@@ -1,32 +1,49 @@
 package com.xhxj.spingboot_ehentai_web;
 
+import com.alibaba.fastjson.JSON;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiDetailPage;
+import com.xhxj.daomain.Proxies;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
 import com.xhxj.web.AnalysisUrl;
 import com.xhxj.web.WebMagic;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import sun.net.www.http.HttpClient;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+@PropertySource("classpath:Configuration.properties")
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SpingbootEhentaiWebApplicationTests {
@@ -95,25 +112,68 @@ public class SpingbootEhentaiWebApplicationTests {
             }
             String[] urllist = urlall.toArray(new String[urlall.size()]);
 
-
-            webMagic.httpweb(urlall);
+            //获取代理对象
+            Proxies httpProxy = getHttpProxy();
+            //开始爬取
+            webMagic.httpweb(urlall,httpProxy);
 
 
         }
     }
 
     @Value("${url}")
+    private String url;
+
+
+
+
     /**
-     * 获取代理池中的数据
+     * 获取网站上的代理服务器地址
+     * @return
      */
-    @Test
-    public void TestGetHttpProxy(){
+    private Proxies getHttpProxy() {
+        //创建HttpClient对象
+        CloseableHttpClient httpClient = HttpClients.createDefault();
 
-        String url = "http://142.4.210.48:8899/api/v1/proxies";
+        //创建HttpGet对象，设置url访问地址
+        HttpGet httpGet = new HttpGet(url);
+
+        CloseableHttpResponse response = null;
+
+        Proxies proxies = null;
+        try {
+            //使用HttpClient发起请求，获取response
+            response = httpClient.execute(httpGet);
+
+            //解析响应
+            if (response.getStatusLine().getStatusCode() == 200) {
+                String content = EntityUtils.toString(response.getEntity(), "utf8");
 
 
+                proxies  = JSON.parseObject(content, Proxies.class);
 
+            }
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            //关闭response
+
+            try {
+                response.close();
+                return  proxies;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+
+        }
     }
 
 
@@ -124,7 +184,7 @@ public class SpingbootEhentaiWebApplicationTests {
 
         //这些连接是需要重新下载的
 
-        webMagic.httpweb(eheitaiDetailPage);
+        webMagic.httpweb(eheitaiDetailPage,getHttpProxy());
     }
 
     //删除重复的509图片数据再去测试爬取
@@ -159,6 +219,15 @@ public class SpingbootEhentaiWebApplicationTests {
                 }
             }
         }
+
+
+    }
+
+    @Test
+    public void TestLength() {
+        String lengTh = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring/harvesting software. The ban expires in 8 hours and 9 minutes";
+
+        System.out.println(lengTh.length());
 
 
     }

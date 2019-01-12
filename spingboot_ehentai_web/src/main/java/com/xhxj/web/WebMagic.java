@@ -4,14 +4,18 @@ import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiDetailPage;
+import com.xhxj.daomain.Proxies;
+import com.xhxj.daomain.ProxiesBean;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.ls.LSInput;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
@@ -57,28 +61,41 @@ public class WebMagic implements PageProcessor {
 
     @Override
     public void process(Page page) {
-        //在这里处理获取到的页面
-        List<String> list = page.getHtml().css("div.gdtm a").links().all();
-        if (list == null || list.size() == 0) {
-            //图片页面
-            parseDetailPageImgHtml(page);
 
-        } else {
-            //作品首页
+        if (page.getStatusCode() == 200) {
+
+
+            if (Integer.valueOf(page.getRawText().length()) > 280) {
+
+
+                //在这里处理获取到的页面
+                List<String> list = page.getHtml().css("div.gdtm a").links().all();
+                if (list == null || list.size() == 0) {
+                    //图片页面
+                    parseDetailPageImgHtml(page);
+
+                } else {
+                    //作品首页
 //            System.out.println("第一次访问" + list.toString());
-            //解析首页
-            parseDetailPageHomeHtml(page);
+                    //解析首页
+                    parseDetailPageHomeHtml(page);
 
-            //获取首页的第二页链接
+                    //获取首页的第二页链接
 //            List<String> string = page.getHtml().xpath("/html/body/div[@gtb] //table/tbody/tr").links().all();
-            List<String> string = page.getHtml().$("div.gtb table>tbody>tr").links().all();
+                    List<String> string = page.getHtml().$("div.gtb table>tbody>tr").links().all();
 
 
-            page.addTargetRequests(string);
-            //把所有获取到的数据用过去
-            addUrl(page, list);
+                    page.addTargetRequests(string);
+                    //把所有获取到的数据用过去
+                    addUrl(page, list);
 
-
+                }
+                //到这里if
+            }else {
+                System.out.println("ip被禁止,应该把该网址添加到新的爬虫库");
+            }
+        } else {
+            System.out.println("页面访问错误未能正常返回数据,数据丢了自己考虑考虑别的逻辑吧");
         }
     }
 
@@ -102,6 +119,7 @@ public class WebMagic implements PageProcessor {
      * @param page
      */
     private void parseDetailPageImgHtml(Page page) {
+
 
         EheitaiDetailPage eheitaiDetailPage = new EheitaiDetailPage();
         //设置当前页面地址
@@ -238,9 +256,9 @@ public class WebMagic implements PageProcessor {
      */
     Site site = Site
             .me()
-            .setTimeOut(100000) // 设置超时时间,服务器在国外设置大一些
-            .setRetrySleepTime(10000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
-            .setRetryTimes(5) // 设置重试次数
+            .setTimeOut(300000) // 设置超时时间,服务器在国外设置大一些
+            .setRetrySleepTime(20000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
+            .setRetryTimes(30) // 设置重试次数
             .setCharset("UTF-8") // 获取UTF-8网站的数据
             .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36")
             .addHeader("Cookie", "igneous=6c63cbdc0; ipb_member_id=805259; ipb_pass_hash=1a0592e854f1b08bcb9c2eb40b6455de; yay=0; lv=1546944712-1546960410");
@@ -257,61 +275,62 @@ public class WebMagic implements PageProcessor {
 
     /**
      * 爬虫开始的地方
+     *
      * @param url 需要爬取的连接
      */
-    public void httpweb(List<String> url) {
-        //抓取页面
+    public void httpweb(List<String> url, Proxies proxies) {
+        //这是一个抓取
 
-        //自己蛋疼写的轮子,至少能用
-//        httpCharset = analysisUrl.getHttp();
-//        System.out.println("网站的编码格式为:" + httpCharset);
-//        //获取解析结果存入sql
-//        analysisUrl.analysisHtml();
-
-        //下载页面
-        //获取下载链接
-
-        //应该写service层的..
+        if (url != null && proxies != null) {
 
 
-
-
-/*        //把sql中没有爬的连接全部丢给爬虫
-        //这里以后要改要有条件的查询
-
-        List<EheitaiCatalog> all = eheitaiCatalogDao.findAll();
-        List<String> urlall = new ArrayList<>();
-        //如果sql中有数据就去爬
-        if (all.size() != 0) {
-            for (EheitaiCatalog eheitaiCatalog : all) {
-                urlall.add(eheitaiCatalog.getUrl());
-            }
-            String[] urllist = urlall.toArray(new String[urlall.size()]);
-            */
-
-        if (url!=null||url.size()!=0){
-
-
-        String[] strings = url.toArray(new String[url.size()]);
-        //给爬虫设置参数
-        Spider spider = Spider.create(new WebMagic())
-                .addUrl(strings)
-                .addPipeline(webMagicDate)
-                //设置去重
-                .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
-                .thread(30);
+            String[] strings = url.toArray(new String[url.size()]);
+            //给爬虫设置参数
+            Spider spider = Spider.create(new WebMagic())
+                    .addUrl(strings)
+                    .addPipeline(webMagicDate)
+                    //设置去重
+                    .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
+                    .thread(100);
 
 //            System.out.println("要爬的网站路径~~~~~~" + url);
-        //只去爬详情页面的数据
+            //只去爬详情页面的数据
 
 
-        //设置爬虫代理
-        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(new Proxy("127.0.0.1", 1081)));
-        spider.setDownloader(httpClientDownloader);
-        spider.run();
+            List<ProxiesBean> proxieslist = proxies.getProxies();
 
-        //整个爬虫爬取完毕
+            HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+
+
+            httpClientDownloader.setProxyProvider(
+                    SimpleProxyProvider.from(
+                            new Proxy(proxieslist.get(1).getIp(), proxieslist.get(1).getPort()),
+                            new Proxy(proxieslist.get(2).getIp(), proxieslist.get(2).getPort()),
+                            new Proxy(proxieslist.get(3).getIp(), proxieslist.get(3).getPort()),
+                            new Proxy(proxieslist.get(4).getIp(), proxieslist.get(4).getPort()),
+                            new Proxy(proxieslist.get(5).getIp(), proxieslist.get(5).getPort()),
+                            new Proxy(proxieslist.get(6).getIp(), proxieslist.get(6).getPort()),
+                            new Proxy(proxieslist.get(7).getIp(), proxieslist.get(7).getPort()),
+                            new Proxy(proxieslist.get(8).getIp(), proxieslist.get(8).getPort()),
+                            new Proxy(proxieslist.get(9).getIp(), proxieslist.get(9).getPort()),
+                            new Proxy(proxieslist.get(10).getIp(), proxieslist.get(10).getPort()),
+                            new Proxy(proxieslist.get(11).getIp(), proxieslist.get(11).getPort()),
+                            new Proxy(proxieslist.get(12).getIp(), proxieslist.get(12).getPort()),
+                            new Proxy(proxieslist.get(13).getIp(), proxieslist.get(13).getPort()),
+                            new Proxy(proxieslist.get(14).getIp(), proxieslist.get(14).getPort()),
+                            new Proxy(proxieslist.get(15).getIp(), proxieslist.get(15).getPort()),
+                            new Proxy(proxieslist.get(16).getIp(), proxieslist.get(16).getPort()),
+                            new Proxy(proxieslist.get(17).getIp(), proxieslist.get(17).getPort()),
+                            new Proxy(proxieslist.get(18).getIp(), proxieslist.get(18).getPort()),
+                            new Proxy(proxieslist.get(19).getIp(), proxieslist.get(19).getPort()),
+                            new Proxy(proxieslist.get(0).getIp(), proxieslist.get(0).getPort())
+                    ));
+
+            //设置爬虫代理
+            spider.setDownloader(httpClientDownloader);
+            spider.run();
+
+            //整个爬虫爬取完毕
         }
 
 //            System.out.println(count);
