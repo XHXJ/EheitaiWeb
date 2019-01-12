@@ -30,6 +30,10 @@ public interface EheitaiDetailPageService {
      */
     List<Integer> findByTest509();
 
-
+    //批量删除
     void deleteTest509(List<Integer> imgid);
+
+
+    //根据一个id删除
+    void deleteTest509Demo01(Integer id);
 }

@@ -11,6 +11,7 @@ import com.xhxj.web.WebMagic;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
@@ -22,6 +23,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
 import java.util.List;
+import java.util.Set;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -96,6 +98,32 @@ public class SpingbootEhentaiWebApplicationTests {
 
     }
 
+    @Autowired
+     EheitaiDetailPageDao eheitaiDetailPageDao2;
+    @Autowired
+    EheitaiCatalogDao eheitaiCatalogDao2;
+    @Test
+    public void  TestDeleteGO(){
+
+        /**
+         * 别问我,我也忘了怎么写的
+         */
+        List<EheitaiCatalog> all = eheitaiCatalogDao2.findAll();
+
+        for (EheitaiCatalog eheitaiCatalog : all) {
+            Set<EheitaiDetailPage> eheitaiDetailPages = eheitaiCatalog.getEheitaiDetailPages();
+            if (eheitaiDetailPages.size()>1){
+
+                for (EheitaiDetailPage eheitaiDetailPage : eheitaiDetailPages) {
+                    eheitaiDetailPageDao2.delete(eheitaiDetailPage);
+
+                }
+            }
+        }
+
+
+
+    }
 
 
 }

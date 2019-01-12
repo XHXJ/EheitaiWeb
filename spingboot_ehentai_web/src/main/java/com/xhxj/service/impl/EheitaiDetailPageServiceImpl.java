@@ -41,11 +41,26 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
         Integer page = pageeheitaiDetailPage.getPage();
         //先去查询有没有这个页数了不然不保存
-        EheitaiDetailPage byImgUrlAndPage = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
+        List<EheitaiDetailPage> byImgUrlAndPagego = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
 
-        //如果之前都没有这if (byImgUrlAndPage == null||!byImgUrlAndPage.getImgUrl().equals("https://exhentai.org/img/509.gif")) {
-        //保存图片
-        saveImg(pageeheitaiDetailPage, gid);
+        EheitaiDetailPage byImgUrlAndPage = byImgUrlAndPagego.get(0);
+
+
+        if (byImgUrlAndPage==null){
+
+            //保存图片
+            saveImg(byImgUrlAndPage, gid);
+        }else {
+            //覆盖原来的,大概是这样吧
+            byImgUrlAndPage.setPage(pageeheitaiDetailPage.getPage());
+            byImgUrlAndPage.setUrl(pageeheitaiDetailPage.getUrl());
+            byImgUrlAndPage.setFileLog(pageeheitaiDetailPage.getFileLog());
+            byImgUrlAndPage.setResolution(pageeheitaiDetailPage.getResolution());
+            byImgUrlAndPage.setFileSize(pageeheitaiDetailPage.getFileSize());
+            byImgUrlAndPage.setImgUrl(pageeheitaiDetailPage.getImgUrl());
+
+            eheitaiDetailPageDao.save(byImgUrlAndPage);
+        }
 
     }
 
@@ -100,5 +115,13 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
             eheitaiDetailPageDao.delete(eheitaiDetailPage);
         }
 
+    }
+
+
+
+    @Override
+    public void deleteTest509Demo01(Integer id) {
+
+        eheitaiDetailPageDao.deleteById(id);
     }
 }
