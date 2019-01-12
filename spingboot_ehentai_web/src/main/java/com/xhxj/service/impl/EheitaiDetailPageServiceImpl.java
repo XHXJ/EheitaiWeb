@@ -43,15 +43,12 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
         //先去查询有没有这个页数了不然不保存
         EheitaiDetailPage byImgUrlAndPage = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
 
-        //如果之前都没有这个数据,别废话直接存
-
-        if (byImgUrlAndPage == null||!byImgUrlAndPage.getImgUrl().equals("https://exhentai.org/img/509.gif")) {
-            //保存图片
-            saveImg(pageeheitaiDetailPage, gid);
-
-        }
+        //如果之前都没有这if (byImgUrlAndPage == null||!byImgUrlAndPage.getImgUrl().equals("https://exhentai.org/img/509.gif")) {
+        //保存图片
+        saveImg(pageeheitaiDetailPage, gid);
 
     }
+
 
     /**
      * 保存图片
@@ -76,5 +73,32 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
     public List<String> findByImgUrl509() {
 
         return eheitaiDetailPageDao.findByImgUrl509();
+    }
+
+    /**
+     * 删除重复的数据,删除正确的数据,留下错误的做测试
+     *
+     * @return
+     */
+    @Override
+    public List<Integer> findByTest509() {
+        return eheitaiDetailPageDao.findByTest509();
+    }
+
+    /**
+     * 删除重复的509数据
+     *
+     * @param imgid 传入到的要删除的图片数据id
+     */
+    @Override
+    public void deleteTest509(List<Integer> imgid) {
+
+        System.out.println(imgid);
+        for (Integer integer : imgid) {
+            EheitaiDetailPage eheitaiDetailPage = new EheitaiDetailPage();
+            eheitaiDetailPage.setId(integer);
+            eheitaiDetailPageDao.delete(eheitaiDetailPage);
+        }
+
     }
 }

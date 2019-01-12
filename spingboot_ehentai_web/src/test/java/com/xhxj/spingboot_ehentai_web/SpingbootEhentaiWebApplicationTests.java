@@ -87,6 +87,15 @@ public class SpingbootEhentaiWebApplicationTests {
         webMagic.httpweb(eheitaiDetailPage);
     }
 
+    //删除重复的509图片数据再去测试爬取
+    @Test
+    public void TestDelete(){
+         List<Integer> imgid= eheitaiDetailPageDao.findByTest509();
+
+         eheitaiDetailPageDao.deleteTest509(imgid);
+
+    }
+
 
 
 }

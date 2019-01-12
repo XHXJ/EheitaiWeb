@@ -22,4 +22,14 @@ public interface EheitaiDetailPageService {
      * @return
      */
     List<String> findByImgUrl509();
+
+
+    /**
+     * 删除重复的数据,删除正确的数据,留下错误的做测试
+     * @return
+     */
+    List<Integer> findByTest509();
+
+
+    void deleteTest509(List<Integer> imgid);
 }
