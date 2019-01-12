@@ -299,7 +299,7 @@ public class WebMagic implements PageProcessor {
                 .addPipeline(webMagicDate)
                 //设置去重
                 .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
-                .thread(100);
+                .thread(30);
 
 //            System.out.println("要爬的网站路径~~~~~~" + url);
         //只去爬详情页面的数据

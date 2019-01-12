@@ -84,7 +84,7 @@ public class EheitaiCatalog implements Serializable {
     private Integer gid;
 
 
-    @OneToMany(targetEntity = EheitaiDetailPage.class,fetch=FetchType.EAGER)
+    @OneToMany(targetEntity = EheitaiDetailPage.class,cascade={CascadeType.MERGE,CascadeType.PERSIST},fetch=FetchType.EAGER)
     @JoinColumn(name = "eheitai_id", referencedColumnName = "gid")
     private Set<EheitaiDetailPage> eheitaiDetailPages = new HashSet<EheitaiDetailPage>();
 

@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -22,6 +23,7 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -35,7 +37,7 @@ public class SpingbootEhentaiWebApplicationTests {
     EheitaiCatalogService eheitaiCatalogDao;
 
     @Test
-    public void testdemo(){
+    public void testdemo() {
         List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(1329034);
         for (EheitaiCatalog eheitaiCatalog : byGid) {
             System.out.println(eheitaiCatalog);
@@ -68,7 +70,7 @@ public class SpingbootEhentaiWebApplicationTests {
 
     @Test
     @Transactional
-    public void Test01(){
+    public void Test01() {
         analysisUrl.getHttp();
         //获取解析结果存入sql
         analysisUrl.analysisHtml();
@@ -80,7 +82,43 @@ public class SpingbootEhentaiWebApplicationTests {
     WebMagic webMagic;
 
     @Test
-    public void TestQ509(){
+    public void TestStart() {
+        //把sql中没有爬的连接全部丢给爬虫
+        //这里以后要改要有条件的查询
+
+        List<EheitaiCatalog> all = eheitaiCatalogDao.findAll();
+        List<String> urlall = new ArrayList<>();
+        //如果sql中有数据就去爬
+        if (all.size() != 0) {
+            for (EheitaiCatalog eheitaiCatalog : all) {
+                urlall.add(eheitaiCatalog.getUrl());
+            }
+            String[] urllist = urlall.toArray(new String[urlall.size()]);
+
+
+            webMagic.httpweb(urlall);
+
+
+        }
+    }
+
+    @Value("${url}")
+    /**
+     * 获取代理池中的数据
+     */
+    @Test
+    public void TestGetHttpProxy(){
+
+        String url = "http://142.4.210.48:8899/api/v1/proxies";
+
+
+
+
+    }
+
+
+    @Test
+    public void TestQ509() {
         //查询sql中没有下载成功的509数据
         List<String> eheitaiDetailPage = eheitaiDetailPageDao.findByImgUrl509();
 
@@ -91,19 +129,20 @@ public class SpingbootEhentaiWebApplicationTests {
 
     //删除重复的509图片数据再去测试爬取
     @Test
-    public void TestDelete(){
-         List<Integer> imgid= eheitaiDetailPageDao.findByTest509();
+    public void TestDelete() {
+        List<Integer> imgid = eheitaiDetailPageDao.findByTest509();
 
-         eheitaiDetailPageDao.deleteTest509(imgid);
+        eheitaiDetailPageDao.deleteTest509(imgid);
 
     }
 
     @Autowired
-     EheitaiDetailPageDao eheitaiDetailPageDao2;
+    EheitaiDetailPageDao eheitaiDetailPageDao2;
     @Autowired
     EheitaiCatalogDao eheitaiCatalogDao2;
+
     @Test
-    public void  TestDeleteGO(){
+    public void TestDeleteGO() {
 
         /**
          * 别问我,我也忘了怎么写的
@@ -112,7 +151,7 @@ public class SpingbootEhentaiWebApplicationTests {
 
         for (EheitaiCatalog eheitaiCatalog : all) {
             Set<EheitaiDetailPage> eheitaiDetailPages = eheitaiCatalog.getEheitaiDetailPages();
-            if (eheitaiDetailPages.size()>1){
+            if (eheitaiDetailPages.size() > 1) {
 
                 for (EheitaiDetailPage eheitaiDetailPage : eheitaiDetailPages) {
                     eheitaiDetailPageDao2.delete(eheitaiDetailPage);
@@ -120,7 +159,6 @@ public class SpingbootEhentaiWebApplicationTests {
                 }
             }
         }
-
 
 
     }

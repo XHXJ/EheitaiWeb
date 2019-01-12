@@ -39,18 +39,25 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
     @Override
     public void saveEheitaiDetailPage(EheitaiDetailPage pageeheitaiDetailPage, Integer gid) {
 
+        if (!pageeheitaiDetailPage.getImgUrl().equals("https://exhentai.org/img/509.gif")){
+
+
         Integer page = pageeheitaiDetailPage.getPage();
         //先去查询有没有这个页数了不然不保存
         List<EheitaiDetailPage> byImgUrlAndPagego = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
 
-        EheitaiDetailPage byImgUrlAndPage = byImgUrlAndPagego.get(0);
+        //这是查出来的数据
+        EheitaiDetailPage byImgUrlAndPage = new EheitaiDetailPage();
 
 
-        if (byImgUrlAndPage==null){
-
+        if (byImgUrlAndPagego.size()==0){
             //保存图片
-            saveImg(byImgUrlAndPage, gid);
+            saveImg(pageeheitaiDetailPage, gid);
         }else {
+            System.out.println("图片下载页面爬取到重复数据!注意优化逻辑");
+        }
+/*        else if (byImgUrlAndPage.getImgUrl().equals("https://exhentai.org/img/509.gif")){
+            byImgUrlAndPage = byImgUrlAndPagego.get(0);
             //覆盖原来的,大概是这样吧
             byImgUrlAndPage.setPage(pageeheitaiDetailPage.getPage());
             byImgUrlAndPage.setUrl(pageeheitaiDetailPage.getUrl());
@@ -60,6 +67,9 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
             byImgUrlAndPage.setImgUrl(pageeheitaiDetailPage.getImgUrl());
 
             eheitaiDetailPageDao.save(byImgUrlAndPage);
+        }*/
+        }else {
+            System.out.println("警告!爬虫被封!返回地址为:https://exhentai.org/img/509.gif");
         }
 
     }
