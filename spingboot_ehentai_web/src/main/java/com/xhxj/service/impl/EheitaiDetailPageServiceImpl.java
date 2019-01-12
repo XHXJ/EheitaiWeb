@@ -59,4 +59,13 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 //        }
 
     }
+
+    @Override
+    public EheitaiDetailPage findByImgUrl509() {
+
+        EheitaiDetailPage eheitaiDetailPage= eheitaiCatalogDao.findByImgUrl509();
+
+
+        return null;
+    }
 }

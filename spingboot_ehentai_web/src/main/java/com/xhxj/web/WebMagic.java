@@ -55,8 +55,6 @@ public class WebMagic implements PageProcessor {
     private Integer img = 0;
 
 
-
-
     @Override
     public void process(Page page) {
         //在这里处理获取到的页面
@@ -66,21 +64,35 @@ public class WebMagic implements PageProcessor {
             parseDetailPageImgHtml(page);
 
         } else {
-            count++;
             //作品首页
 //            System.out.println("第一次访问" + list.toString());
-            System.out.println("首页网站" + count + " : " + page.getUrl().toString());
             //解析首页
             parseDetailPageHomeHtml(page);
 
             //获取首页的第二页链接
-            List<String> string = page.getHtml().xpath("/html/body/div[4]  //tr/td").links().all();
+//            List<String> string = page.getHtml().xpath("/html/body/div[@gtb] //table/tbody/tr").links().all();
+            List<String> string = page.getHtml().$("div.gtb table>tbody>tr").links().all();
 
 
             page.addTargetRequests(string);
             //把所有获取到的数据用过去
-            page.addTargetRequests(list);
+            addUrl(page,list);
+
+
         }
+    }
+
+
+    /**
+     * 去测试一下如果连接已经在数据库中,就不要去访问了
+     * @param page 用来调用添加连接的方法
+     * @param list 用来
+     */
+    private void addUrl(Page page, List<String> list) {
+
+
+        page.addTargetRequests(list);
+
     }
 
     /**
@@ -89,9 +101,7 @@ public class WebMagic implements PageProcessor {
      * @param page
      */
     private void parseDetailPageImgHtml(Page page) {
-        img++;
 
-        System.out.println("图片页面" + img + " : " + page.getRequest().getUrl());
         EheitaiDetailPage eheitaiDetailPage = new EheitaiDetailPage();
         //设置当前页面地址
         eheitaiDetailPage.setUrl(page.getRequest().getUrl());
@@ -129,7 +139,7 @@ public class WebMagic implements PageProcessor {
         //当前页面快要完全下载的时候,通知后台去检测是否完成
         Integer round = Math.toIntExact(Math.round(duob));
         //如果到了最后一页的图片页数应该是和当前页数重复的.
-        if (currentpagein > round  ) {
+        if (currentpagein > round) {
             //已经是图片页页尾,该作品爬取完毕
             //用中间件MQ通知下载器,需要把当前作品id传过去
             page.putField("complete", gid);
@@ -273,8 +283,8 @@ public class WebMagic implements PageProcessor {
             String[] urllist = urlall.toArray(new String[urlall.size()]);
             //给爬虫设置参数
             spider = Spider.create(new WebMagic())
-//                    .addUrl(urllist)
-                    .addUrl("https://exhentai.org/s/8caa9bdf36/1343299-1235")
+                    .addUrl(urllist)
+//                    .addUrl("https://exhentai.org/s/8caa9bdf36/1343299-1235")
                     .addPipeline(webMagicDate)
                     .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
                     .thread(100);

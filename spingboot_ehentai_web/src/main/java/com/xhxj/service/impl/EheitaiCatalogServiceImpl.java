@@ -3,10 +3,12 @@ package com.xhxj.service.impl;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.service.EheitaiCatalogService;
+import com.xhxj.web.ActiveMqQueueProduce;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.JMSException;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +17,8 @@ import java.util.List;
 public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
     @Autowired
     EheitaiCatalogDao eheitaiCatalogDao;
+    @Autowired
+    ActiveMqQueueProduce activeMqQueueProduce;
 
 
     /**
@@ -72,10 +76,17 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
     @Override
     public void saveComplete(Integer gid) {
 
-        //去查询5次
-        for (int i = 0; i < 10; i++) {
+        List<EheitaiCatalog> all = eheitaiCatalogDao.findByGid(gid);
 
+        if (all.get(0).getEheitaiDetailPages().size()==all.get(0).getLength()){
+            //如果当前作品eheitaiCatalog记录的页数相等于他对应的eheitaiDetailPages的总数,那作品就下载完成
+            try {
+                activeMqQueueProduce.postMessage(gid);
+
+            } catch (JMSException e) {
+                System.out.println("发送消息失败,请检查ActiveMQ是否启动");
+                e.printStackTrace();
+            }
         }
-
     }
 }

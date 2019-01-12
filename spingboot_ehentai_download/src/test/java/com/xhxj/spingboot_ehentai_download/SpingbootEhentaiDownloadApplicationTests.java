@@ -45,7 +45,7 @@ public class SpingbootEhentaiDownloadApplicationTests {
                 if(message instanceof  TextMessage){
                     TextMessage textMessage = (TextMessage) message;
 
-                    System.out.println("收到的内容是："+textMessage.getText());
+                    System.out.println("完成爬取的作品："+textMessage.getText());
                     continue;
                 }
             }

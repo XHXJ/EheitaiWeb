@@ -73,6 +73,12 @@ public class SpingbootEhentaiWebApplicationTests {
 
     }
 
+    @Test
+    public void TestQ509(){
+        //查询sql中没有下载成功的509数据
+        EheitaiDetailPage eheitaiDetailPage = eheitaiDetailPageDao.findByImgUrl509();
+
+    }
 
 
 

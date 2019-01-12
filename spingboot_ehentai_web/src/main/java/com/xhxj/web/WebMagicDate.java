@@ -28,8 +28,7 @@ public class WebMagicDate implements Pipeline {
     @Autowired
     EheitaiDetailPageService eheitaiDetailPageService;
 
-    @Autowired
-    ActiveMqQueueProduce activeMqQueueProduce;
+
 
 
     @Override
@@ -94,12 +93,7 @@ public class WebMagicDate implements Pipeline {
 
 
 
-/*                    try {
-                        activeMqQueueProduce.postMessage(complete);
-                    } catch (JMSException e) {
-                        System.out.println("发送消息失败,请检查ActiveMQ是否启动");
-                        e.printStackTrace();
-                    }*/
+
                 }
                 break;
         }

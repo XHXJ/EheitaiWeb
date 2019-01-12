@@ -13,4 +13,11 @@ public interface EheitaiDetailPageService {
      * @param gid 外键
      */
     void saveEheitaiDetailPage(EheitaiDetailPage pageeheitaiDetailPage, Integer gid);
+
+
+    /**
+     * 查询下载失败509的数据
+     * @return
+     */
+    EheitaiDetailPage findByImgUrl509();
 }
