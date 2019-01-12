@@ -284,6 +284,9 @@ public class WebMagic implements PageProcessor {
         if (url != null && proxies != null) {
 
 
+
+
+
             String[] strings = url.toArray(new String[url.size()]);
             //给爬虫设置参数
             Spider spider = Spider.create(new WebMagic())
@@ -292,6 +295,8 @@ public class WebMagic implements PageProcessor {
                     //设置去重
                     .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
                     .thread(100);
+
+
 
 //            System.out.println("要爬的网站路径~~~~~~" + url);
             //只去爬详情页面的数据
