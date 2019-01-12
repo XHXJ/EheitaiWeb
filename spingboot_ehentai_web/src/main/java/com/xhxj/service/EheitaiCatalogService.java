@@ -22,4 +22,12 @@ public interface EheitaiCatalogService {
      * @return
      */
     List<EheitaiCatalog> findAll();
+
+
+    /**
+     * 作品要爬完了,去数据库查询是否完成
+     * 如果完成就更新信息
+     * @param gid 即将完成的作品id
+     */
+    void saveComplete(Integer gid);
 }

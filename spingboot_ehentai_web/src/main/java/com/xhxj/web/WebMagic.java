@@ -50,30 +50,31 @@ public class WebMagic implements PageProcessor {
     //设置一个变量储存当前图片地址用来对比是否到了最后一页
     private String imgSrc = "";
 
-    private double count = 0l;
+    private Integer count = 0;
+
+    private Integer img = 0;
+
 
 
 
     @Override
     public void process(Page page) {
-        System.out.println("当前访问网站:"+page.getUrl().toString());
-
         //在这里处理获取到的页面
         List<String> list = page.getHtml().css("div.gdtm a").links().all();
         if (list == null || list.size() == 0) {
             //图片页面
             parseDetailPageImgHtml(page);
 
-            count++;
         } else {
+            count++;
             //作品首页
 //            System.out.println("第一次访问" + list.toString());
-
+            System.out.println("首页网站" + count + " : " + page.getUrl().toString());
             //解析首页
             parseDetailPageHomeHtml(page);
 
             //获取首页的第二页链接
-            List<String> string = page.getHtml().xpath("/html/body/div[3]/table/tbody/tr ").links().all();
+            List<String> string = page.getHtml().xpath("/html/body/div[4]  //tr/td").links().all();
 
 
             page.addTargetRequests(string);
@@ -88,7 +89,9 @@ public class WebMagic implements PageProcessor {
      * @param page
      */
     private void parseDetailPageImgHtml(Page page) {
-        System.out.println("这是图片页面");
+        img++;
+
+        System.out.println("图片页面" + img + " : " + page.getRequest().getUrl());
         EheitaiDetailPage eheitaiDetailPage = new EheitaiDetailPage();
         //设置当前页面地址
         eheitaiDetailPage.setUrl(page.getRequest().getUrl());
@@ -114,19 +117,23 @@ public class WebMagic implements PageProcessor {
         page.putField("eheitaiDetailPage", eheitaiDetailPage);
         page.putField("gid", integer);
 
+
         //看看是不是最后一页了最后一页通知下载进程去下载
         //当前页
         String currentpage = page.getHtml().css("div.sn>div>span ", "text").toString();
         //总页面
         String lastpage = page.getHtml().xpath("//*[@id='i2']/div[1]/div/span[2]/text()").toString();
 
+        Integer currentpagein = Integer.valueOf(currentpage);
+        double duob = (Integer.valueOf(lastpage) * 0.99);
+        //当前页面快要完全下载的时候,通知后台去检测是否完成
+        Integer round = Math.toIntExact(Math.round(duob));
         //如果到了最后一页的图片页数应该是和当前页数重复的.
-        if(currentpage.equals(lastpage)){
+        if (currentpagein > round  ) {
             //已经是图片页页尾,该作品爬取完毕
             //用中间件MQ通知下载器,需要把当前作品id传过去
-            page.putField("complete",gid);
+            page.putField("complete", gid);
         }
-
 
 
     }
@@ -179,7 +186,7 @@ public class WebMagic implements PageProcessor {
         eheitaiCatalog.setPostedDate(postedDate);
         eheitaiCatalog.setFileSize(fileSize);
         eheitaiCatalog.setLanguage(language);
-        if (!eid.equalsIgnoreCase("none")){
+        if (!eid.equalsIgnoreCase("none")) {
             eheitaiCatalog.setParent(Integer.valueOf(eid));
         }
         eheitaiCatalog.setGid(Integer.valueOf(gid));
@@ -214,6 +221,24 @@ public class WebMagic implements PageProcessor {
         }
     }
 
+    // 用来设置参数
+    /**
+     * Site.me()可以对爬虫进行一些参数配置，包括编码、超时时间、重试时间、重试次数等
+     */
+    Site site = Site
+            .me()
+            .setTimeOut(100000) // 设置超时时间,服务器在国外设置大一些
+            .setRetrySleepTime(10000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
+            .setRetryTimes(5) // 设置重试次数
+            .setCharset("UTF-8") // 获取UTF-8网站的数据
+            .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36")
+            .addHeader("Cookie", "igneous=6c63cbdc0; ipb_member_id=805259; ipb_pass_hash=1a0592e854f1b08bcb9c2eb40b6455de; yay=0; lv=1546944712-1546960410");
+
+
+    @Override
+    public Site getSite() {
+        return site;
+    }
 
     //    @PostConstruct
     @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
@@ -249,7 +274,7 @@ public class WebMagic implements PageProcessor {
             //给爬虫设置参数
             spider = Spider.create(new WebMagic())
 //                    .addUrl(urllist)
-                    .addUrl("https://exhentai.org/g/1343299/5414dfe4db/")
+                    .addUrl("https://exhentai.org/s/8caa9bdf36/1343299-1235")
                     .addPipeline(webMagicDate)
                     .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
                     .thread(100);
@@ -264,29 +289,13 @@ public class WebMagic implements PageProcessor {
             spider.setDownloader(httpClientDownloader);
             spider.run();
 
+            //整个爬虫爬取完毕
+
+
 //            System.out.println(count);
         } else {
             System.out.println("数据库出问题了?没数据?webmagic找不到要爬取的网页");
         }
     }
-    // 用来设置参数
-    /**
-     * Site.me()可以对爬虫进行一些参数配置，包括编码、超时时间、重试时间、重试次数等
-     */
-    Site site = Site
-            .me()
-            .setTimeOut(10000 * 6) // 设置超时时间，60秒,服务器在国外设置大一些
-            .setRetrySleepTime(6 * 1000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
-            .setRetryTimes(10) // 设置重试次数
-            .setCharset("UTF-8") // 获取UTF-8网站的数据
-            .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36")
-            .addHeader("Cookie", "igneous=6c63cbdc0; ipb_member_id=805259; ipb_pass_hash=1a0592e854f1b08bcb9c2eb40b6455de; yay=0; lv=1546944712-1546960410");
-
-
-    @Override
-    public Site getSite() {
-        return site;
-    }
-
 
 }

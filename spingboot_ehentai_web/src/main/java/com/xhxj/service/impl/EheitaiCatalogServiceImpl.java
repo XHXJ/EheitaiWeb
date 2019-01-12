@@ -64,4 +64,18 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
     public List<EheitaiCatalog> findAll() {
         return eheitaiCatalogDao.findAll();
     }
+
+    /**
+     * 作品即将爬完,准备去查询更新
+     * @param gid 即将完成的作品id
+     */
+    @Override
+    public void saveComplete(Integer gid) {
+
+        //去查询5次
+        for (int i = 0; i < 10; i++) {
+
+        }
+
+    }
 }
