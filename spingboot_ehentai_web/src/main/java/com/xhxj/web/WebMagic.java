@@ -29,6 +29,9 @@ import us.codecraft.webmagic.selector.Selectable;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -341,7 +344,7 @@ public class WebMagic implements PageProcessor {
      *
      * @param url 需要爬取的连接
      */
-    public void httpweb(List<String> url, Proxies proxies) {
+    public void httpweb(List<String> url, List<ProxiesBean> proxies) {
         //这是一个抓取
 
         if (url != null && proxies != null) {
@@ -363,33 +366,15 @@ public class WebMagic implements PageProcessor {
             //只去爬详情页面的数据
 
 
-            List<ProxiesBean> proxieslist = proxies.getProxies();
 
             HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
 
 
             httpClientDownloader.setProxyProvider(
                     SimpleProxyProvider.from(
-                            new Proxy(proxieslist.get(1).getIp(), proxieslist.get(1).getPort()),
-                            new Proxy(proxieslist.get(2).getIp(), proxieslist.get(2).getPort()),
-                            new Proxy(proxieslist.get(3).getIp(), proxieslist.get(3).getPort()),
-                            new Proxy(proxieslist.get(4).getIp(), proxieslist.get(4).getPort()),
-                            new Proxy(proxieslist.get(5).getIp(), proxieslist.get(5).getPort()),
-                            new Proxy(proxieslist.get(6).getIp(), proxieslist.get(6).getPort()),
-                            new Proxy(proxieslist.get(7).getIp(), proxieslist.get(7).getPort()),
-                            new Proxy(proxieslist.get(8).getIp(), proxieslist.get(8).getPort()),
-                            new Proxy(proxieslist.get(9).getIp(), proxieslist.get(9).getPort()),
-                            new Proxy(proxieslist.get(10).getIp(), proxieslist.get(10).getPort()),
-                            new Proxy(proxieslist.get(11).getIp(), proxieslist.get(11).getPort()),
-                            new Proxy(proxieslist.get(12).getIp(), proxieslist.get(12).getPort()),
-                            new Proxy(proxieslist.get(13).getIp(), proxieslist.get(13).getPort()),
-                            new Proxy(proxieslist.get(14).getIp(), proxieslist.get(14).getPort()),
-                            new Proxy(proxieslist.get(15).getIp(), proxieslist.get(15).getPort()),
-                            new Proxy(proxieslist.get(16).getIp(), proxieslist.get(16).getPort()),
-                            new Proxy(proxieslist.get(17).getIp(), proxieslist.get(17).getPort()),
-                            new Proxy(proxieslist.get(18).getIp(), proxieslist.get(18).getPort()),
-                            new Proxy(proxieslist.get(19).getIp(), proxieslist.get(19).getPort()),
-                            new Proxy(proxieslist.get(0).getIp(), proxieslist.get(0).getPort())
+                            new Proxy(proxies.get(0).getIp(),proxies.get(0).getPort()),
+                            new Proxy(proxies.get(1).getIp(), proxies.get(1).getPort()),
+                            new Proxy(proxies.get(2).getIp(), proxies.get(2).getPort())
                     ));
 
             //设置爬虫代理
@@ -406,5 +391,6 @@ public class WebMagic implements PageProcessor {
 
 //            System.out.println(count);
     }
+
 
 }

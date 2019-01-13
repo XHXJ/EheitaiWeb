@@ -22,5 +22,6 @@ public class Proxies {
     private int per_page;
     private int page;
     private int total_page;
+
     private List<ProxiesBean> proxies;
 }

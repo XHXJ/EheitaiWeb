@@ -115,7 +115,7 @@ public class SpingbootEhentaiWebApplicationTests {
             //获取代理对象
             Proxies httpProxy = getHttpProxy();
             //开始爬取
-            webMagic.httpweb(urlall,httpProxy);
+//            webMagic.httpweb(urlall,());
 
 
         }
@@ -184,7 +184,7 @@ public class SpingbootEhentaiWebApplicationTests {
 
         //这些连接是需要重新下载的
 
-        webMagic.httpweb(eheitaiDetailPage,getHttpProxy());
+//        webMagic.httpweb(eheitaiDetailPage,getHttpProxy());
     }
 
     //删除重复的509图片数据再去测试爬取
@@ -201,6 +201,9 @@ public class SpingbootEhentaiWebApplicationTests {
     @Autowired
     EheitaiCatalogDao eheitaiCatalogDao2;
 
+    /**
+     * 查看每个作品是否有重复爬取的页面
+     */
     @Test
     public void TestDeleteGO() {
 
@@ -211,16 +214,20 @@ public class SpingbootEhentaiWebApplicationTests {
 
         for (EheitaiCatalog eheitaiCatalog : all) {
             Set<EheitaiDetailPage> eheitaiDetailPages = eheitaiCatalog.getEheitaiDetailPages();
-            if (eheitaiDetailPages.size() > 1) {
-
+//            if (eheitaiDetailPages.size() != eheitaiCatalog.getLength()) {
+            //是要查看完成的还是未完成的,还是都查看
+            if (true) {
                 for (EheitaiDetailPage eheitaiDetailPage : eheitaiDetailPages) {
-                    eheitaiDetailPageDao2.delete(eheitaiDetailPage);
-
+                    for (EheitaiDetailPage detailPage : eheitaiDetailPages) {
+                        if (eheitaiDetailPage.getPage()==detailPage.getPage()&&eheitaiDetailPage.getId()!=detailPage.getId()){
+                            //这样就能查看到是否有重复的页面了
+                            System.out.println();
+                        }
+                    }
                 }
             }
+
         }
-
-
     }
 
     @Test

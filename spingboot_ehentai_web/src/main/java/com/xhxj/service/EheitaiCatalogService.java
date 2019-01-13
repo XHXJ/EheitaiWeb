@@ -37,4 +37,6 @@ public interface EheitaiCatalogService {
      */
 
     List<String> findByUrl();
+
+
 }

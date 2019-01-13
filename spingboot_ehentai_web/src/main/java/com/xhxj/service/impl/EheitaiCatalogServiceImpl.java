@@ -98,4 +98,6 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
         return eheitaiCatalogDao.findByUrl();
     }
+
+
 }

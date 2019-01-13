@@ -115,7 +115,7 @@ public class AnalysisUrl {
                 List<EheitaiCatalog> byDivId = eheitaiCatalogDao.findByGid(eheitaiCatalog.getGid());
 
                 if (byDivId == null || byDivId.size() == 0) {
-                    System.out.println("是哪个报错了?eheitaiCatalog="+eheitaiCatalog);
+//                    System.out.println("是哪个报错了?eheitaiCatalog="+eheitaiCatalog);
 
                     eheitaiCatalogDao.save(eheitaiCatalog);
                     System.out.println("已保存:" + eheitaiCatalog + "\n");
