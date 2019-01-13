@@ -30,4 +30,11 @@ public interface EheitaiCatalogService {
      * @param gid 即将完成的作品id
      */
     void saveComplete(Integer gid);
+
+    /**
+     * 查询全部时数据库中的作品连接进行比对
+     * @return
+     */
+
+    List<String> findByUrl();
 }

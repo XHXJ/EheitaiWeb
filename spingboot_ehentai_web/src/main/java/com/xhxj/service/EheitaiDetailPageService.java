@@ -4,6 +4,7 @@ import com.xhxj.daomain.EheitaiDetailPage;
 
 import java.util.List;
 
+
 public interface EheitaiDetailPageService {
 
     //保存对象
@@ -36,4 +37,19 @@ public interface EheitaiDetailPageService {
 
     //根据一个id删除
     void deleteTest509Demo01(Integer id);
+
+    /**
+     * 查询全部的图片获取地址
+     * @return
+     */
+
+    List<String> findByUrl();
+
+
+    /**
+     * 根据url去查询
+     * @param url 传入的url
+     * @return
+     */
+    String findByUrl(String url);
 }

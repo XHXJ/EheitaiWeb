@@ -7,10 +7,12 @@ import com.xhxj.daomain.EheitaiDetailPage;
 import com.xhxj.service.EheitaiDetailPageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
     @Autowired
@@ -86,8 +88,8 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
         List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
         EheitaiCatalog eheitaiCatalog = byGid.get(0);
-
-
+        //设置为爬取成功
+        pageeheitaiDetailPage.setCrawlComplete(1);
         eheitaiCatalog.getEheitaiDetailPages().add(pageeheitaiDetailPage);
 
         //保存
@@ -133,5 +135,25 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
     public void deleteTest509Demo01(Integer id) {
 
         eheitaiDetailPageDao.deleteById(id);
+    }
+
+    /**
+     * 查询全部的图片url
+     * @return
+     */
+    @Override
+    public List<String> findByUrl() {
+
+        return eheitaiDetailPageDao.findByUrl();
+    }
+
+    /**
+     * 根据传入的url去查询数据
+     * @param url 传入的url
+     * @return
+     */
+    @Override
+    public String findByUrl(String url) {
+        return eheitaiDetailPageDao.findByUrl(url);
     }
 }

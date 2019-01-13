@@ -50,7 +50,13 @@ public class Start {
             for (EheitaiCatalog eheitaiCatalog : all) {
                 urlall.add(eheitaiCatalog.getUrl());
             }
+            //去看看有没有之前报错的数据也一并给他丢进去了
+
+
+
+            //这里是需要爬取的对象
             String[] urllist = urlall.toArray(new String[urlall.size()]);
+
 
             //获取代理对象
             Proxies httpProxy = getHttpProxy();

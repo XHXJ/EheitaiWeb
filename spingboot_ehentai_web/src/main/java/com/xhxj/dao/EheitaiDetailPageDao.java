@@ -28,5 +28,12 @@ public interface EheitaiDetailPageDao extends JpaRepository<EheitaiDetailPage, I
     List<Integer> findByTest509();
 
 
+    //查询全部的图片url
+    @Query(value = "SELECT url FROM eheitai_detail_page",nativeQuery = true)
+    List<String> findByUrl();
+
+    //更具传入的url去查询
+    @Query(value = "SELECT url FROM eheitai_detail_page WHERE url = ? ",nativeQuery = true)
+    String findByUrl(String url);
 }
 

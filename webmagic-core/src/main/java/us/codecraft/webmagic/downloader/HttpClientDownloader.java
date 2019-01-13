@@ -1,10 +1,12 @@
 package us.codecraft.webmagic.downloader;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
@@ -17,6 +19,8 @@ import us.codecraft.webmagic.selector.PlainText;
 import us.codecraft.webmagic.utils.CharsetUtils;
 import us.codecraft.webmagic.utils.HttpClientUtils;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -86,12 +90,21 @@ public class HttpClientDownloader extends AbstractDownloader {
             logger.info("downloading page success {}", request.getUrl());
             return page;
         } catch (IOException e) {
-            System.out.println("错误是不是在这里报的~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            System.out.println("错误是不是在这里报的~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~我在:C:\\Users\\78222\\IdeaProjects\\git\\webmagic-core\\src\\main\\java\\us\\codecraft\\webmagic\\downloader\\HttpClientDownloader.java)");
 
+            try {
+                FileWriter fileWriter = new FileWriter("e:/errorUrl.txt",true);
+                fileWriter.write(request.getUrl()+"\n");
+                fileWriter.close();
+
+            } catch (IOException e1) {
+                System.out.println("写出错误网站报错????.......");
+                e1.printStackTrace();
+            }
 
 
 //            logger.warn("download page {} error", request.getUrl(), e);
-//            onError(request);
+            onError(request);
             return page;
         } finally {
             if (httpResponse != null) {

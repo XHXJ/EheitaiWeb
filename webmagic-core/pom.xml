@@ -9,6 +9,7 @@
 
     <artifactId>webmagic-core</artifactId>
 
+
     <dependencies>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -79,6 +80,7 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
         </dependency>
+
 
     </dependencies>
 

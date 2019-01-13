@@ -232,6 +232,13 @@ public class SpingbootEhentaiWebApplicationTests {
 
     }
 
+    @Test
+    public void TestQurl(){
+        String url =null;
+        String query =eheitaiDetailPageDao.findByUrl(url);
+        System.out.println(query);
+    }
+
 
 }
 

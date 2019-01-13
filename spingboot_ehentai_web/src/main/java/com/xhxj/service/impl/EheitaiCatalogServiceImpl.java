@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -88,5 +87,15 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 查询全部的作品url
+     * @return
+     */
+    @Override
+    public List<String> findByUrl() {
+
+        return eheitaiCatalogDao.findByUrl();
     }
 }

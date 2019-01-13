@@ -62,42 +62,98 @@ public class WebMagic implements PageProcessor {
     @Override
     public void process(Page page) {
 
-        if (page.getStatusCode() == 200) {
+
+        if (Integer.valueOf(page.getRawText().length()) > 280) {
 
 
-            if (Integer.valueOf(page.getRawText().length()) > 280) {
+            //在这里处理获取到的页面
+            List<String> list = page.getHtml().css("div.gdtm a").links().all();
+            if (list == null || list.size() == 0) {
+                //图片页面
+                parseDetailPageImgHtml(page);
 
-
-                //在这里处理获取到的页面
-                List<String> list = page.getHtml().css("div.gdtm a").links().all();
-                if (list == null || list.size() == 0) {
-                    //图片页面
-                    parseDetailPageImgHtml(page);
-
-                } else {
-                    //作品首页
+            } else {
+                //作品首页
 //            System.out.println("第一次访问" + list.toString());
-                    //解析首页
-                    parseDetailPageHomeHtml(page);
+                //解析首页
+                parseDetailPageHomeHtml(page);
 
-                    //获取首页的第二页链接
+                //获取首页的第二页链接
 //            List<String> string = page.getHtml().xpath("/html/body/div[@gtb] //table/tbody/tr").links().all();
-                    List<String> string = page.getHtml().$("div.gtb table>tbody>tr").links().all();
+                List<String> string = page.getHtml().$("div.gtb table>tbody>tr").links().all();
 
-
-                    page.addTargetRequests(string);
-                    //把所有获取到的数据用过去
-                    addUrl(page, list);
-
+                for (String s : string) {
+                    System.out.println("图片连接:" + s + "\n");
                 }
-                //到这里if
-            }else {
-                System.out.println("ip被禁止,应该把该网址添加到新的爬虫库");
+
+
+                page.addTargetRequests(string);
+                //把所有获取到的数据用过去
+                //判断去重复
+                repetition(page, list);
+
+
             }
+            //到这里if
         } else {
-            System.out.println("页面访问错误未能正常返回数据,数据丢了自己考虑考虑别的逻辑吧");
+            System.out.println("ip被禁止,应该把该网址添加到新的爬虫库");
         }
+
     }
+
+    /**
+     * springboot已启动就去加载全部的url
+     */
+    @PostConstruct
+    public void WebMagic() {
+        allUrl = eheitaiCatalogDao.findByUrl();
+
+        allImgUrl = eheitaiDetailPageDao.findByUrl();
+
+    }
+
+    //一开始就要去查询数据库中的数据,放着等待比对
+    private static List<String> allUrl = null;
+
+    //查询全部图片表中的url
+    private static List<String> allImgUrl = null;
+
+
+
+    /**
+     * 去判断有没有获取到重复的id
+     *一个简单的判断
+     * @param page
+     * @param list 获取到的图片链接
+     */
+
+
+    private void repetition(Page page, List<String> list) {
+
+
+        List<String> finish = new ArrayList<>();
+
+        //拿list的数据去sql中查询如果空就说明不重复
+        for (String url : list) {
+
+            //不知道为什么这里调不到dao
+//            String query =eheitaiDetailPageDao.findByUrl(url);
+            //查询方法
+
+            if (!allImgUrl.contains(url)){
+                //说明数据库中没有这个图片地址
+                finish.add(url);
+
+            }
+        }
+
+        //通知爬虫去爬取没有的图片
+        page.addTargetRequests(finish);
+
+
+    }
+
+
 
 
     /**
@@ -256,9 +312,9 @@ public class WebMagic implements PageProcessor {
      */
     Site site = Site
             .me()
-            .setTimeOut(300000) // 设置超时时间,服务器在国外设置大一些
-            .setRetrySleepTime(20000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
-            .setRetryTimes(30) // 设置重试次数
+            .setTimeOut(10000) // 设置超时时间,服务器在国外设置大一些
+            .setRetrySleepTime(5000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
+            .setRetryTimes(10) // 设置重试次数
             .setCharset("UTF-8") // 获取UTF-8网站的数据
             .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36")
             .addHeader("Cookie", "igneous=6c63cbdc0; ipb_member_id=805259; ipb_pass_hash=1a0592e854f1b08bcb9c2eb40b6455de; yay=0; lv=1546944712-1546960410");
@@ -284,9 +340,6 @@ public class WebMagic implements PageProcessor {
         if (url != null && proxies != null) {
 
 
-
-
-
             String[] strings = url.toArray(new String[url.size()]);
             //给爬虫设置参数
             Spider spider = Spider.create(new WebMagic())
@@ -295,7 +348,6 @@ public class WebMagic implements PageProcessor {
                     //设置去重
                     .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
                     .thread(100);
-
 
 
 //            System.out.println("要爬的网站路径~~~~~~" + url);
