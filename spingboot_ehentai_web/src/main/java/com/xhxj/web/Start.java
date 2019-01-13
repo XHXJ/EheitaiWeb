@@ -16,7 +16,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +54,7 @@ public class Start {
                 urlall.add(eheitaiCatalog.getUrl());
             }
             //去看看有没有之前报错的数据也一并给他丢进去了
-
-
+            urlall.addAll(readErrorUrl(urlall));
 
             //这里是需要爬取的对象
             String[] urllist = urlall.toArray(new String[urlall.size()]);
@@ -61,10 +63,36 @@ public class Start {
             //获取代理对象
             Proxies httpProxy = getHttpProxy();
             //开始爬取
-            webMagic.httpweb(urlall,httpProxy);
+            webMagic.httpweb(urlall, httpProxy);
 
 
         }
+    }
+
+    /**
+     * @param urlall 之前读取到的数据没有也无所谓
+     * @return
+     */
+    private List<String> readErrorUrl(List<String> urlall) {
+
+        try {
+
+            List<String> list = Files.readAllLines(Paths.get("./errorUrl.txt"), StandardCharsets.UTF_8);
+
+            //读取完毕之后就清除之前的
+            FileWriter fileWriter = new FileWriter("./errorUrl.txt");
+            fileWriter.write("");
+            fileWriter.close();
+
+            return list;
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
+
     }
 
     public void Test01() {
@@ -78,6 +106,7 @@ public class Start {
 
     /**
      * 获取网站上的代理服务器地址
+     *
      * @return
      */
     private Proxies getHttpProxy() {
@@ -99,7 +128,7 @@ public class Start {
                 String content = EntityUtils.toString(response.getEntity(), "utf8");
 
 
-                proxies  = JSON.parseObject(content, Proxies.class);
+                proxies = JSON.parseObject(content, Proxies.class);
 
             }
 
@@ -110,7 +139,7 @@ public class Start {
 
             try {
                 response.close();
-                return  proxies;
+                return proxies;
             } catch (IOException e) {
                 e.printStackTrace();
             }

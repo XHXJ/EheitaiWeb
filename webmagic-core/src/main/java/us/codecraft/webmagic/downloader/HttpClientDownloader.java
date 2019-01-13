@@ -1,6 +1,7 @@
 package us.codecraft.webmagic.downloader;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -88,14 +89,45 @@ public class HttpClientDownloader extends AbstractDownloader {
             page = handleResponse(request, request.getCharset() != null ? request.getCharset() : task.getSite().getCharset(), httpResponse, task);
             onSuccess(request);
             logger.info("downloading page success {}", request.getUrl());
+
+            //判断为返回文本长度
+            //只针对Ehentai,其他网站请自行判断
+            if (Integer.valueOf(page.getRawText().length()) < 280){
+                //这个代理器被封了
+                String url = proxy.getHost()+":"+proxy.getPort()+";\n";
+
+                try {
+                    FileWriter fileWriter = new FileWriter("./error/banProxyIP.txt",true);
+                    fileWriter.write(url);
+                    fileWriter.close();
+                } catch (IOException e) {
+                    System.out.println("写出禁封ip时报错????.......");
+                    e.printStackTrace();
+                }
+
+                //在前面page解析的时候已经做了错误网站处理,所以不用输出访问网站
+
+            }
+
+
             return page;
         } catch (IOException e) {
-            System.out.println("错误是不是在这里报的~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~我在:C:\\Users\\78222\\IdeaProjects\\git\\webmagic-core\\src\\main\\java\\us\\codecraft\\webmagic\\downloader\\HttpClientDownloader.java)");
+//            System.out.println("错误是不是在这里报的~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~我在:C:\\Users\\78222\\IdeaProjects\\git\\webmagic-core\\src\\main\\java\\us\\codecraft\\webmagic\\downloader\\HttpClientDownloader.java)");
+
+            //这个错误一般是压根没办法正常访问网站,该代理服务器可能用不了
+            String proxyAll = proxy.getHost()+":"+proxy.getPort()+";\n";
+            String url = request.getUrl();
+
 
             try {
-                FileWriter fileWriter = new FileWriter("e:/errorUrl.txt",true);
-                fileWriter.write(request.getUrl()+"\n");
+                FileWriter fileWriter = new FileWriter("./errorUrl.txt",true);
+                fileWriter.write(url+"\n");
                 fileWriter.close();
+
+                FileWriter fileProxy = new FileWriter("./error/errorProxy.txt",true);
+                fileProxy.write(proxyAll);
+                fileProxy.close();
+
 
             } catch (IOException e1) {
                 System.out.println("写出错误网站报错????.......");

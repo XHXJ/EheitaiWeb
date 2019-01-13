@@ -82,9 +82,6 @@ public class WebMagic implements PageProcessor {
 //            List<String> string = page.getHtml().xpath("/html/body/div[@gtb] //table/tbody/tr").links().all();
                 List<String> string = page.getHtml().$("div.gtb table>tbody>tr").links().all();
 
-                for (String s : string) {
-                    System.out.println("图片连接:" + s + "\n");
-                }
 
 
                 page.addTargetRequests(string);
@@ -97,6 +94,16 @@ public class WebMagic implements PageProcessor {
             //到这里if
         } else {
             System.out.println("ip被禁止,应该把该网址添加到新的爬虫库");
+            //如果被禁就把该地址拿去重试
+            try {
+                FileWriter fileWriter = new FileWriter("./banUrl.txt",true);
+                fileWriter.write(page.getUrl().toString()+"\n");
+                fileWriter.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }
@@ -342,6 +349,8 @@ public class WebMagic implements PageProcessor {
 
             String[] strings = url.toArray(new String[url.size()]);
             //给爬虫设置参数
+
+
             Spider spider = Spider.create(new WebMagic())
                     .addUrl(strings)
                     .addPipeline(webMagicDate)
@@ -388,6 +397,11 @@ public class WebMagic implements PageProcessor {
             spider.run();
 
             //整个爬虫爬取完毕
+            //开始错误检测阶段
+
+
+
+
         }
 
 //            System.out.println(count);
