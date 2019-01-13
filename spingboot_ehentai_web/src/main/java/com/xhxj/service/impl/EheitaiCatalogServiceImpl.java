@@ -99,5 +99,11 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
         return eheitaiCatalogDao.findByUrl();
     }
 
+    @Override
+    public EheitaiCatalog findByUrl(String s) {
+
+        return eheitaiCatalogDao.findByUrl(s);
+    }
+
 
 }

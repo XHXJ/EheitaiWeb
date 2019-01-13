@@ -156,4 +156,14 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
     public String findByUrl(String url) {
         return eheitaiDetailPageDao.findByUrl(url);
     }
+
+    /**
+     * #查询指定作品的page表下全部页面的总和
+     * @param id
+     * @return
+     */
+    @Override
+    public Integer findByUrlCount(Integer id) {
+        return eheitaiDetailPageDao.findByUrlCount(id);
+    }
 }

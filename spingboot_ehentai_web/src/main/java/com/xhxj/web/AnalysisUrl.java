@@ -119,9 +119,10 @@ public class AnalysisUrl {
 
                     eheitaiCatalogDao.save(eheitaiCatalog);
                     System.out.println("已保存:" + eheitaiCatalog + "\n");
-                } else {
-                    System.out.println("sql中有重复数据:" + byDivId + "\n" + "未保存");
                 }
+//                else {
+//                    System.out.println("sql中有重复数据:" + byDivId + "\n" + "未保存");
+//                }
 
             }
             i++;

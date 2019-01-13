@@ -38,5 +38,9 @@ public interface EheitaiCatalogService {
 
     List<String> findByUrl();
 
-
+    /**
+     * 根据url查询作品
+     * @param s 作品的url连接
+     */
+    EheitaiCatalog findByUrl(String s);
 }

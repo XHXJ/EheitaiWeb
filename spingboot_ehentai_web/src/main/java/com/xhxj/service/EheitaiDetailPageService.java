@@ -52,4 +52,11 @@ public interface EheitaiDetailPageService {
      * @return
      */
     String findByUrl(String url);
+
+    /**
+     * #查询指定作品的page表下全部页面的总和
+     * @param id
+     * @return
+     */
+    Integer findByUrlCount(Integer id);
 }

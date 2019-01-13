@@ -381,15 +381,11 @@ public class WebMagic implements PageProcessor {
             spider.setDownloader(httpClientDownloader);
             spider.run();
 
-            //整个爬虫爬取完毕
-            //开始错误检测阶段
-
 
 
 
         }
 
-//            System.out.println(count);
     }
 
 

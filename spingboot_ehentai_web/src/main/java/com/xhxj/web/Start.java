@@ -3,6 +3,7 @@ package com.xhxj.web;
 import com.alibaba.fastjson.JSON;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.daomain.EheitaiCatalog;
+import com.xhxj.daomain.EheitaiDetailPage;
 import com.xhxj.daomain.Proxies;
 import com.xhxj.daomain.ProxiesBean;
 import com.xhxj.service.EheitaiCatalogService;
@@ -57,23 +58,14 @@ public class Start {
         //下载页面
 
 
-
-
-
-
-
         //把sql中没有爬的连接全部丢给爬虫
         //这里以后要改要有条件的查询
-
-
-
 
 
         List<EheitaiCatalog> all = eheitaiCatalogService.findAll();
         List<String> urlall = new ArrayList<>();
 
         //添加完成查询方法,如果完成的不需要爬取
-
 
 
         //如果sql中有数据就去爬
@@ -98,6 +90,8 @@ public class Start {
 
 
             //这里的逻辑需要优化,之前作品应该完成
+
+            //这是第一次爬取所有报错的连接
             List<String> errorUrl = readErrorUrl();
 
 
@@ -105,18 +99,18 @@ public class Start {
             //在重复爬取几次后,就只爬取图片页面的数据
             int count = 2;
             int i = 0;
-            while (errorUrl.size()!=0){
+            while (errorUrl.size() != 0) {
                 List<String> errorUrlCount = new ArrayList<>();
                 //重复几次后只爬取图片页面
-                if (i==count){
+                if (i == count) {
                     for (String s : errorUrl) {
                         String[] split = s.split("=");
-                        if (split.length==1){
+                        if (split.length == 1) {
                             errorUrlCount.add(s);
                         }
 
                     }
-                    if (errorUrlCount.size()==0){
+                    if (errorUrlCount.size() == 0) {
                         //如果都没有图片了那就跳出循环结束爬虫
                         break;
                     }
@@ -132,6 +126,7 @@ public class Start {
 
         }
     }
+
     /**
      * @return
      */
@@ -158,15 +153,33 @@ public class Start {
             List<String> listAll = new ArrayList<>();
             //处理重复数据
             for (String s : list) {
+
+
+                //如果作品已完成,就不要添加连接
+                //更具url
+                EheitaiCatalog eheitaiCatalog = eheitaiCatalogService.findByUrl(s);
+                //有才去执行
+                if (eheitaiCatalog != null) {
+
+
+                    Integer id = eheitaiCatalog.getId();
+                    //更具获取到的id去查询作品是否完成
+                    //先查询总下载页数
+                    Integer count = eheitaiDetailPageService.findByUrlCount(id);
+                    //如果作品本身的总页数,不等于sql中的总页数,继续爬取
+                    if (eheitaiCatalog.getLength() != count) {
+                        listAll.add(s);
+                    }
+
+                }
+                //s为连接
+                //如果sql中已经存在该页面就不需要添加
                 String byUrl = eheitaiDetailPageService.findByUrl(s);
-                //如果没有数据
-                if (byUrl==null){
+                if (byUrl == null) {
                     listAll.add(s);
                 }
+
             }
-
-
-
 
 
             return listAll;
@@ -179,21 +192,6 @@ public class Start {
         return new ArrayList<>();
 
     }
-
-
-    public void Test01() {
-        analysisUrl.getHttp();
-        //获取解析结果存入sql
-        analysisUrl.analysisHtml();
-        //下载页面
-
-    }
-
-
-
-
-
-
 
 
     /**
