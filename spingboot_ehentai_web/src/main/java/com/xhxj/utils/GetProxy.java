@@ -107,9 +107,10 @@ public class GetProxy {
 
         Proxies proxies = null;
 
-        while (objects.size() < 20) {
+        while (objects.size() < 10) {
 
             try {
+                Thread.sleep(300);
                 //创建HttpClient对象
                 CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -138,9 +139,9 @@ public class GetProxy {
                         //要没有重复数据才添加
                         if (errorProxy == null) {
                             objects.add(new Proxy(proxiesBean.getIp(), proxiesBean.getPort()));
-
                         }
-
+                        System.out.println("代理地址在黑名单中:"+proxiesBean+"\n" +
+                                "当前拥有代理:"+objects.size()+"个");
                     }
 
                 }
@@ -151,7 +152,7 @@ public class GetProxy {
 
                 response.close();
                 httpClient.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

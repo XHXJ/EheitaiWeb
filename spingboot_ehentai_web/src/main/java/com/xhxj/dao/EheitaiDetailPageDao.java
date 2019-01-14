@@ -38,5 +38,9 @@ public interface EheitaiDetailPageDao extends JpaRepository<EheitaiDetailPage, I
     //#查询指定作品的page表下全部页面的总和
     @Query(value = "SELECT COUNT(b.page) FROM eheitai_catalog a ,eheitai_detail_page b WHERE gid = eheitai_id AND eheitai_id = ? ",nativeQuery = true)
     Integer findByUrlCount(Integer id);
+
+    //查看图片所有页面的总和
+    @Query(value = "SELECT SUM(eheitai_catalog.length) FROM eheitai_catalog",nativeQuery = true)
+    Integer findByUrlCountPage();
 }
 

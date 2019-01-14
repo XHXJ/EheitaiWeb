@@ -104,6 +104,8 @@ public class ErrorProxyUtils {
 
 
         } catch (IOException e) {
+
+            System.out.println("读取error文件时报错");
             e.printStackTrace();
         }
 

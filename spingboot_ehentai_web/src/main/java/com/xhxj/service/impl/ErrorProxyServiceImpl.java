@@ -21,4 +21,13 @@ public class ErrorProxyServiceImpl  implements ErrorProxyService {
     public ErrorProxy finByHost(String s) {
         return errorProxyDao.findByHost(s);
     }
+
+    /**
+     * 定期删除状态为error,总报错次数不超过几次的数据
+     * @param i
+     */
+    @Override
+    public void deleteByStateAndCounter(int i) {
+        errorProxyDao.deleteByStateAndCounter(i);
+    }
 }

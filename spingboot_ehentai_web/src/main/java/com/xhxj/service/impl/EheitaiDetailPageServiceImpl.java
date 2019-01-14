@@ -179,4 +179,13 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
     public Integer findByUrlCount(Integer id) {
         return eheitaiDetailPageDao.findByUrlCount(id);
     }
+
+    /**
+     * 查询当前页数的总和
+     * @return
+     */
+    @Override
+    public Integer findByUrlCountPage() {
+        return eheitaiDetailPageDao.findByUrlCountPage();
+    }
 }

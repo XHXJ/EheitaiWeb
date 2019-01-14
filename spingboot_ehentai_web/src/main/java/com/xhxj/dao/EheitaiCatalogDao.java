@@ -20,5 +20,10 @@ public interface EheitaiCatalogDao extends JpaRepository<EheitaiCatalog,Integer>
     //根据传入的url去查询作品
     @Query(value = "SELECT * FROM eheitai_catalog WHERE url = ? ",nativeQuery = true)
     EheitaiCatalog findByUrl(String s);
+
+
+    //查看作品页面总和
+    @Query(value = "SELECT COUNT(page)  FROM eheitai_detail_page",nativeQuery = true)
+    Integer findByUrlCountPage();
 }
 

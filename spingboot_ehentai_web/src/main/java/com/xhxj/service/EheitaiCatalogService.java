@@ -43,4 +43,8 @@ public interface EheitaiCatalogService {
      * @param s 作品的url连接
      */
     EheitaiCatalog findByUrl(String s);
+
+
+    //查看作品页面加起来的总和
+    Integer findByUrlCountPage();
 }

@@ -5,6 +5,7 @@ import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.ErrorProxy;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
+import com.xhxj.service.ErrorProxyService;
 import com.xhxj.utils.ErrorProxyUtils;
 import com.xhxj.utils.GetProxy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @PropertySource("classpath:Configuration.properties")
@@ -39,13 +42,14 @@ public class Start {
     EheitaiDetailPageService eheitaiDetailPageService;
 
 
-
     /**
      * 开始爬虫
      */
     @Async
     @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
     public void Start() {
+
+        Date date1 = new Date();
 
         //解析想要获取的数据
         analysisUrl.getHttp();
@@ -84,39 +88,47 @@ public class Start {
              */
             //webMagic.httpweb(urlall, getHttpProxy());
 
-            webMagic.httpWebStart(urlall,getHttpProxy(),eheitaiCatalogService,eheitaiDetailPageService);
+            webMagic.httpWebStart(urlall, getHttpProxy(), eheitaiCatalogService, eheitaiDetailPageService);
             //这里的逻辑需要优化,之前作品应该完成
 
             //这是第一次爬取所有报错的连接
-            List<String> errorUrl = readErrorUrl();
 
 
             //如果有错误地址就一直重复爬取
             //在重复爬取几次后,就只爬取图片页面的数据
             int count = 2;
             int i = 0;
-            while (errorUrl.size() != 0) {
-//                List<String> errorUrlCount = new ArrayList<>();
-                //重复几次后只爬取图片页面
-//                if (i == count) {
-//                    for (String s : errorUrl) {
-//                        String[] split = s.split("=");
-//                        if (split.length == 1) {
-//                            errorUrlCount.add(s);
-//                        }
-//
-//                    }
-//                    if (errorUrlCount.size() == 0) {
-//                        //如果都没有图片了那就跳出循环结束爬虫
-//                        break;
-//                    }
-//
-//                    webMagic.httpweb(errorUrlCount, getHttpProxy());
-//                }
+            while (true) {
+
+                List<String> errorUrl = readErrorUrl();
 
 
-                //获取新的连接池
+                Integer integer = eheitaiDetailPageService.findByUrlCountPage();
+
+                Integer integer1 = eheitaiCatalogService.findByUrlCountPage();
+
+
+                System.out.println("已爬取:"+integer1+"页@剩:"+integer+"页");
+                if (integer.equals(integer1) ) {
+//                    Date date = new Date();
+//                    long time = date.getTime();
+//                    long time1 = date1.getTime();
+//
+//                    long time11 = time- time1;
+//
+//                    Date date2 = new Date(time11);
+//
+//
+//                    SimpleDateFormat formatter = new SimpleDateFormat("dd天 HH:mm:ss");
+//                    String dateString = formatter.format(date2);
+
+                    System.out.println("爬取完毕!!!");
+                    System.exit(0);
+                }
+
+                //重新开始爬取
                 webMagic.httpweb(errorUrl, getHttpProxy());
+
                 i++;
             }
 
@@ -125,6 +137,7 @@ public class Start {
 
     @Autowired
     GetProxy getProxy;
+
     /**
      * 获取多个代理对象
      * 使其不重复
@@ -208,16 +221,19 @@ public class Start {
     }
 
 
-@Autowired
-ErrorProxyUtils errorProxyUtils;
+    @Autowired
+    ErrorProxyUtils errorProxyUtils;
+
+    @Autowired
+    ErrorProxyService errorProxyService;
 
     @Async
-    @Scheduled(initialDelay = 60 * 1000, fixedDelay =  60 * 1000)
-    public void stop(){
+    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 60 * 1000)
+    public void stop() {
 
-        System.out.println("-------------------------------"+"\n"+"每60秒执行一次");
+        System.out.println("-------------------------------" + "\n" + "每60秒执行一次");
         //执行关闭
-        webMagic.stop();
+//        webMagic.stop();
 
 
         //把报错的id和被封的id存入sql中;
@@ -226,9 +242,9 @@ ErrorProxyUtils errorProxyUtils;
         //要去把代理的连接池爬出来,重新替换代理
 
 
+        //定期删除状态为error,总报错次数不超过几次的数据
 
-
-
+        errorProxyService.deleteByStateAndCounter(6);
 
     }
 
@@ -237,10 +253,9 @@ ErrorProxyUtils errorProxyUtils;
 
     @Async
     @Scheduled(initialDelay = 1 * 100, fixedDelay = 30 * 1000)
-    public void Remove(){
+    public void Remove() {
         System.out.println("查询了数据库中的全部图片url,用于去重");
         webMagicScheduler.remove();
-
 
 
     }

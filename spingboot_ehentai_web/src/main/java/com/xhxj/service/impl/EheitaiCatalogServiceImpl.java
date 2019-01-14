@@ -112,10 +112,24 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
         return eheitaiCatalogDao.findByUrl();
     }
 
+    /**
+     * 根据作品url连接去查询作品
+     * @param s 作品的url连接
+     * @return
+     */
     @Override
     public EheitaiCatalog findByUrl(String s) {
 
         return eheitaiCatalogDao.findByUrl(s);
+    }
+
+    /**
+     * 查看作品页面总和
+     * @return
+     */
+    @Override
+    public Integer findByUrlCountPage() {
+        return eheitaiCatalogDao.findByUrlCountPage();
     }
 
 
