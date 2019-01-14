@@ -27,6 +27,7 @@ public class EheitaiDetailPage implements Serializable {
     //图片大小
     private String FileSize;
     //设置当前图片下载地址
+    @Column(length = 1000)
     private String ImgUrl;
     //爬取成功
     @Column(nullable = false)
@@ -37,8 +38,8 @@ public class EheitaiDetailPage implements Serializable {
     private Integer complete = 0;
 
 
-    @ManyToOne(targetEntity = EheitaiCatalog.class)
     @JoinColumn(name = "eheitai_id", referencedColumnName = "gid")
+    @ManyToOne(targetEntity = EheitaiCatalog.class)
     private EheitaiCatalog eheitaiCatalog;
 
 

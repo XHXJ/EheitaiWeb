@@ -1,14 +1,18 @@
 package com.xhxj.web;
 
+import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;
-import us.codecraft.webmagic.scheduler.DuplicateRemovedScheduler;
 import us.codecraft.webmagic.scheduler.component.DuplicateRemover;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -18,17 +22,23 @@ import java.util.concurrent.ConcurrentHashMap;
  * 为了解决在webmagic中不能调用dao的问题
  */
 @Component
-public class WebMagicScheduler  implements DuplicateRemover {
+public class WebMagicScheduler implements DuplicateRemover {
     @Autowired
     EheitaiDetailPageService eheitaiDetailPageService;
+
+    @Autowired
+    EheitaiCatalogService eheitaiCatalogService;
+
     public WebMagicScheduler() {
     }
 
     /**
      * 解决多线程中的传参问题
+     *
      * @param eheitaiDetailPageService
      */
-    public WebMagicScheduler(EheitaiDetailPageService eheitaiDetailPageService) {
+    public WebMagicScheduler(EheitaiCatalogService eheitaiCatalogService, EheitaiDetailPageService eheitaiDetailPageService) {
+        this.eheitaiCatalogService = eheitaiCatalogService;
         this.eheitaiDetailPageService = eheitaiDetailPageService;
     }
 
@@ -36,21 +46,23 @@ public class WebMagicScheduler  implements DuplicateRemover {
     //@Autowired
     //EheitaiDetailPageService eheitaiDetailPageService;
 
-    @PostConstruct
-    private void test(){
-        //List<String> byUrl = eheitaiDetailPageService.findByUrl();
 
-
-       // System.out.println();
+    public void remove() {
+        byUrl = eheitaiDetailPageService.findByUrl();
     }
 
 
-    private static Set<String> urls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+    private Set<String> urls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+
+    //数据库中所有的图片url连接用于去重复
+    private static List<String> byUrl = new ArrayList<>();
 
     @Override
     public boolean isDuplicate(Request request, Task task) {
-        List<String> byUrl =  eheitaiDetailPageService.findByUrl();
-        System.out.println();
+        List<String> all = byUrl;
+        for (String s : all) {
+            urls.add(s);
+        }
 
         return !urls.add(getUrl(request));
     }

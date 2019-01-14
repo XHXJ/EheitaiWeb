@@ -86,7 +86,6 @@ public class WebMagicDate implements Pipeline {
             case 2:
                 //pageeheitaiDetailPage 图片页面操作
                 //保存下载连接
-
                 //在这里判断爬取的数据是否509
                 eheitaiDetailPageService.saveEheitaiDetailPage(pageeheitaiDetailPage, gid);
 

@@ -2,6 +2,7 @@ package com.xhxj.web;
 
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiDetailPage;
+import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -28,13 +29,12 @@ import java.util.List;
 public class WebMagic implements PageProcessor {
 
 
-
     @Autowired
     AnalysisUrl analysisUrl;
-    //@Autowired
-    //EheitaiCatalogService eheitaiCatalogDao;
-   // @Autowired
-   // EheitaiDetailPageService eheitaiDetailPageDao;
+    @Autowired
+    EheitaiCatalogService eheitaiCatalogDao;
+    @Autowired
+    EheitaiDetailPageService eheitaiDetailPageDao;
     @Autowired
     WebMagicDate webMagicDate;
 
@@ -51,9 +51,13 @@ public class WebMagic implements PageProcessor {
 
     public WebMagic() {
     }
-    public WebMagic(EheitaiDetailPageService eheitaiDetailPageService) {
-        new WebMagicDate(eheitaiDetailPageService);
+
+    public WebMagic(EheitaiCatalogService eheitaiCatalogService, EheitaiDetailPageService eheitaiDetailPageService) {
+        this.eheitaiCatalogDao = eheitaiCatalogService;
+        this.eheitaiDetailPageDao = eheitaiDetailPageService;
     }
+
+    private static Spider spider = null;
 
 
     @Override
@@ -80,7 +84,6 @@ public class WebMagic implements PageProcessor {
                 List<String> string = page.getHtml().$("div.gtb table>tbody>tr").links().all();
 
 
-
                 page.addTargetRequests(string);
                 //把所有获取到的数据用过去
                 //判断去重复
@@ -93,8 +96,8 @@ public class WebMagic implements PageProcessor {
             System.out.println("ip被禁止,应该把该网址添加到新的爬虫库");
             //如果被禁就把该地址拿去重试
             try {
-                FileWriter fileWriter = new FileWriter("./banUrl.txt",true);
-                fileWriter.write(page.getUrl().toString()+"\n");
+                FileWriter fileWriter = new FileWriter("./banUrl.txt", true);
+                fileWriter.write(page.getUrl().toString() + "\n");
                 fileWriter.close();
 
             } catch (IOException e) {
@@ -123,10 +126,10 @@ public class WebMagic implements PageProcessor {
     private static List<String> allImgUrl = null;
 
 
-
     /**
      * 去判断有没有获取到重复的id
-     *一个简单的判断
+     * 一个简单的判断
+     *
      * @param page
      * @param list 获取到的图片链接
      */
@@ -137,27 +140,13 @@ public class WebMagic implements PageProcessor {
 
         List<String> finish = new ArrayList<>();
 
-        //拿list的数据去sql中查询如果空就说明不重复
-        for (String url : list) {
 
-            //不知道为什么这里调不到dao
-//            String query =eheitaiDetailPageDao.findByUrl(url);
-            //查询方法
-
-            if (!allImgUrl.contains(url)){
-                //说明数据库中没有这个图片地址
-                finish.add(url);
-
-            }
-        }
 
         //通知爬虫去爬取没有的图片
-        page.addTargetRequests(finish);
+        page.addTargetRequests(list);
 
 
     }
-
-
 
 
     /**
@@ -332,16 +321,14 @@ public class WebMagic implements PageProcessor {
 
     //    @PostConstruct
 //    @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
-    @Autowired
-    EheitaiDetailPageService eheitaiDetailPageService;
 
-    private static Spider spider =null;
 
-    public void httpweb2(List<String> url, List<Proxy> proxies,EheitaiDetailPageService a)
-    {
-        eheitaiDetailPageService = a;
-        httpweb(url,proxies);
+    public void httpWebStart(List<String> url, List<Proxy> proxies, EheitaiCatalogService eheitaiCatalog, EheitaiDetailPageService eheitaiDetailPage) {
+        this.eheitaiCatalogDao = eheitaiCatalog;
+        this.eheitaiDetailPageDao = eheitaiDetailPage;
+        httpweb(url, proxies);
     }
+
     /**
      * 爬虫开始的地方
      *
@@ -357,12 +344,12 @@ public class WebMagic implements PageProcessor {
             //给爬虫设置参数
 
 
-            spider = Spider.create(new WebMagic())
+            spider = Spider.create(new WebMagic(eheitaiCatalogDao, eheitaiDetailPageDao))
                     .addUrl(strings)
                     .addPipeline(webMagicDate)
                     //设置去重
 //                    .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
-                    .setScheduler(new QueueScheduler().setDuplicateRemover(new WebMagicScheduler(eheitaiDetailPageService)))
+                    .setScheduler(new QueueScheduler().setDuplicateRemover(new WebMagicScheduler(eheitaiCatalogDao, eheitaiDetailPageDao)))
                     .thread(100);
 
 
@@ -370,11 +357,7 @@ public class WebMagic implements PageProcessor {
             //只去爬详情页面的数据
 
 
-
             HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-
-
-
 
 
             httpClientDownloader.setProxyProvider(
@@ -386,8 +369,6 @@ public class WebMagic implements PageProcessor {
             spider.run();
 
 
-
-
         }
 
     }
@@ -395,10 +376,9 @@ public class WebMagic implements PageProcessor {
     /**
      * 关闭方法
      */
-    public void stop(){
+    public void stop() {
         spider.stop();
     }
-
 
 
 }

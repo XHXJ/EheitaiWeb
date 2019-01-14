@@ -22,6 +22,7 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
     /**
      * 保存对象
+     *
      * @param eheitaiCatalog 作品对象
      */
     @Override
@@ -31,6 +32,7 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
     /**
      * 根据gid去查询对象
+     *
      * @param gid 作品id
      * @return
      */
@@ -41,26 +43,35 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
     /**
      * 更新旧的数据
+     *
      * @param pageEheitaiCatalog 解析页面page获取到的数据
      */
     @Override
     public void updatePageEheitaiCatalog(EheitaiCatalog pageEheitaiCatalog) {
+
         List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(pageEheitaiCatalog.getGid());
-        EheitaiCatalog eheitaiCatalog = byGid.get(0);
+        if (byGid.size() == 1) {
 
-        //把新传入的数据拿出来存到旧的里面
-        eheitaiCatalog.setFileSize(pageEheitaiCatalog.getFileSize());
-        eheitaiCatalog.setLanguage(pageEheitaiCatalog.getLanguage());
-        eheitaiCatalog.setLength(pageEheitaiCatalog.getLength());
-        eheitaiCatalog.setParent(pageEheitaiCatalog.getParent());
-        eheitaiCatalog.setPostedDate(pageEheitaiCatalog.getPostedDate());
-        eheitaiCatalog.setToken(pageEheitaiCatalog.getToken());
 
-        eheitaiCatalogDao.save(eheitaiCatalog);
+            EheitaiCatalog eheitaiCatalog = byGid.get(0);
+
+            //把新传入的数据拿出来存到旧的里面
+            eheitaiCatalog.setFileSize(pageEheitaiCatalog.getFileSize());
+            eheitaiCatalog.setLanguage(pageEheitaiCatalog.getLanguage());
+            eheitaiCatalog.setLength(pageEheitaiCatalog.getLength());
+            eheitaiCatalog.setParent(pageEheitaiCatalog.getParent());
+            eheitaiCatalog.setPostedDate(pageEheitaiCatalog.getPostedDate());
+            eheitaiCatalog.setToken(pageEheitaiCatalog.getToken());
+
+            eheitaiCatalogDao.save(eheitaiCatalog);
+        }else {
+            System.out.println("为什么会不是1????,或者没有数据?");
+        }
     }
 
     /**
      * 查询全部
+     *
      * @return
      */
     @Override
@@ -70,6 +81,7 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
     /**
      * 作品即将爬完,准备去查询更新
+     *
      * @param gid 即将完成的作品id
      */
     @Override
@@ -77,7 +89,7 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
         List<EheitaiCatalog> all = eheitaiCatalogDao.findByGid(gid);
 
-        if (all.get(0).getEheitaiDetailPages().size()==all.get(0).getLength()){
+        if (all.get(0).getEheitaiDetailPages().size() == all.get(0).getLength()) {
             //如果当前作品eheitaiCatalog记录的页数相等于他对应的eheitaiDetailPages的总数,那作品就下载完成
             try {
                 activeMqQueueProduce.postMessage(gid);
@@ -91,6 +103,7 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
     /**
      * 查询全部的作品url
+     *
      * @return
      */
     @Override

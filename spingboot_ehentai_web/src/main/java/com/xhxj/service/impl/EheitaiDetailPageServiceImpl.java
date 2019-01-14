@@ -41,23 +41,23 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
     @Override
     public void saveEheitaiDetailPage(EheitaiDetailPage pageeheitaiDetailPage, Integer gid) {
 
-        if (!pageeheitaiDetailPage.getImgUrl().equals("https://exhentai.org/img/509.gif")){
+        if (!pageeheitaiDetailPage.getImgUrl().equals("https://exhentai.org/img/509.gif")) {
 
 
-        Integer page = pageeheitaiDetailPage.getPage();
-        //先去查询有没有这个页数了不然不保存
-        List<EheitaiDetailPage> byImgUrlAndPagego = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
+            Integer page = pageeheitaiDetailPage.getPage();
+            //先去查询有没有这个页数了不然不保存
+            List<EheitaiDetailPage> byImgUrlAndPagego = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
 
-        //这是查出来的数据
-        EheitaiDetailPage byImgUrlAndPage = new EheitaiDetailPage();
+            //这是查出来的数据
+//        EheitaiDetailPage byImgUrlAndPage = new EheitaiDetailPage();
 
 
-        if (byImgUrlAndPagego.size()==0){
-            //保存图片
-            saveImg(pageeheitaiDetailPage, gid);
-        }else {
-            System.out.println("图片下载页面爬取到重复数据!注意优化逻辑");
-        }
+            if (byImgUrlAndPagego.size() == 0) {
+                //保存图片
+                saveImg(pageeheitaiDetailPage, gid);
+            } else {
+                System.out.println("图片下载页面爬取到重复数据!注意优化逻辑");
+            }
 /*        else if (byImgUrlAndPage.getImgUrl().equals("https://exhentai.org/img/509.gif")){
             byImgUrlAndPage = byImgUrlAndPagego.get(0);
             //覆盖原来的,大概是这样吧
@@ -70,7 +70,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
             eheitaiDetailPageDao.save(byImgUrlAndPage);
         }*/
-        }else {
+        } else {
             System.out.println("警告!爬虫被封!返回地址为:https://exhentai.org/img/509.gif");
         }
 
@@ -87,13 +87,24 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
         //新建图片保存
 
         List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
-        EheitaiCatalog eheitaiCatalog = byGid.get(0);
-        //设置为爬取成功
-        pageeheitaiDetailPage.setCrawlComplete(1);
-        eheitaiCatalog.getEheitaiDetailPages().add(pageeheitaiDetailPage);
+        if (byGid.size() == 1) {
 
-        //保存
-        eheitaiCatalogDao.save(eheitaiCatalog);
+
+            EheitaiCatalog eheitaiCatalog = byGid.get(0);
+
+
+            //设置为爬取成功
+            pageeheitaiDetailPage.setCrawlComplete(1);
+
+            eheitaiCatalog.getEheitaiDetailPages().add(pageeheitaiDetailPage);
+
+            //保存
+            //是时候重写保存语句了....
+            eheitaiCatalogDao.save(eheitaiCatalog);
+        }else {
+            System.out.println(byGid);
+            System.out.println("为什么没有数据,或者不是一个");
+        }
     }
 
     @Override
@@ -130,7 +141,6 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
     }
 
 
-
     @Override
     public void deleteTest509Demo01(Integer id) {
 
@@ -139,6 +149,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
     /**
      * 查询全部的图片url
+     *
      * @return
      */
     @Override
@@ -149,6 +160,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
     /**
      * 根据传入的url去查询数据
+     *
      * @param url 传入的url
      * @return
      */
@@ -159,6 +171,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
     /**
      * #查询指定作品的page表下全部页面的总和
+     *
      * @param id
      * @return
      */
