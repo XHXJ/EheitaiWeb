@@ -2,8 +2,10 @@ package com.xhxj.web;
 
 
 import com.xhxj.daomain.EheitaiCatalog;
+import com.xhxj.daomain.ErrorProxy;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
+import com.xhxj.utils.ErrorProxyUtils;
 import com.xhxj.utils.GetProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -206,7 +208,8 @@ public class Start {
     }
 
 
-
+@Autowired
+ErrorProxyUtils errorProxyUtils;
 
     @Async
     @Scheduled(initialDelay = 60 * 1000, fixedDelay =  60 * 1000)
@@ -214,10 +217,15 @@ public class Start {
 
         System.out.println("-------------------------------"+"\n"+"每60秒执行一次");
         //执行关闭
-//        webMagic.stop();
+        webMagic.stop();
 
 
         //把报错的id和被封的id存入sql中;
+        errorProxyUtils.analysis();
+
+        //要去把代理的连接池爬出来,重新替换代理
+
+
 
 
 
@@ -232,6 +240,8 @@ public class Start {
     public void Remove(){
         System.out.println("查询了数据库中的全部图片url,用于去重");
         webMagicScheduler.remove();
+
+
 
     }
 }

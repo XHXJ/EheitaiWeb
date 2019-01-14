@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,8 +97,12 @@ public class HttpClientDownloader extends AbstractDownloader {
             //判断为返回文本长度
             //只针对Ehentai,其他网站请自行判断
             if (Integer.valueOf(page.getRawText().length()) < 280){
+
+
+
+
                 //这个代理器被封了
-                String url = proxy.getHost()+":"+proxy.getPort()+"\n";
+                String url = proxy.getHost()+":"+proxy.getPort()+":"+page.getRawText()+"\n";
 
                 try {
                     FileWriter fileWriter = new FileWriter("./error/banProxyIP.txt",true);

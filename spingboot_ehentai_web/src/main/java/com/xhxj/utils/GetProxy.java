@@ -1,13 +1,17 @@
 package com.xhxj.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.xhxj.daomain.ErrorProxy;
 import com.xhxj.daomain.Proxies;
 import com.xhxj.daomain.ProxiesBean;
+import com.xhxj.service.ErrorProxyService;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.proxy.Proxy;
@@ -23,6 +27,8 @@ public class GetProxy {
     @Value("${url}")
     private String url;
 
+    @Autowired
+    ErrorProxyService errorProxyService;
 
     /**
      * 获取网站上的代理服务器地址
@@ -55,7 +61,16 @@ public class GetProxy {
                 String[] split = content.split("\n");
                 for (String s : split) {
                     String[] split1 = s.split(":");
-                    objects = new Proxy(split1[0], Integer.valueOf(split1[1]));
+                    //加个判断,如果在ip黑名单中就不去获取
+
+                    //去把id相等的数据查出来
+                    ErrorProxy errorProxy = errorProxyService.finByHost(split1[0]);
+
+                    if (errorProxy == null) {
+                        objects = new Proxy(split1[0], Integer.valueOf(split1[1]));
+
+                    }
+
                 }
 
 
@@ -86,72 +101,65 @@ public class GetProxy {
 
     public List<Proxy> getHttpProxyDao() {
 
-        //创建HttpClient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        //创建HttpGet对象，设置url访问地址
-        HttpGet httpGet = new HttpGet(url);
-
-        CloseableHttpResponse response = null;
 
 
         List<Proxy> objects = new ArrayList<>();
 
         Proxies proxies = null;
-        try {
-            //使用HttpClient发起请求，获取response
-            response = httpClient.execute(httpGet);
 
-            //解析响应
-            if (response.getStatusLine().getStatusCode() == 200) {
-                String content = EntityUtils.toString(response.getEntity(), "utf8");
-
-
-                proxies = JSON.parseObject(content, Proxies.class);
-
-
-                List<ProxiesBean> proxies1 = proxies.getProxies();
-                for (ProxiesBean proxiesBean : proxies1) {
-
-                    objects.add(new Proxy(proxiesBean.getIp(),proxiesBean.getPort()));
-                }
-
-
-
-
-
-
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            //关闭response
+        while (objects.size() < 20) {
 
             try {
-                response.close();
-                if (objects.size()==0){
+                //创建HttpClient对象
+                CloseableHttpClient httpClient = HttpClients.createDefault();
+
+                //创建HttpGet对象，设置url访问地址
+                HttpGet httpGet = new HttpGet(url);
+
+                CloseableHttpResponse response = null;
+
+
+                //使用HttpClient发起请求，获取response
+                response = httpClient.execute(httpGet);
+
+
+                //解析响应
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    String content = EntityUtils.toString(response.getEntity(), "utf8");
+
+
+                    proxies = JSON.parseObject(content, Proxies.class);
+
+
+                    List<ProxiesBean> proxies1 = proxies.getProxies();
+                    for (ProxiesBean proxiesBean : proxies1) {
+                        //去把id相等的数据查出来
+                        ErrorProxy errorProxy = errorProxyService.finByHost(proxiesBean.getIp());
+                        //要没有重复数据才添加
+                        if (errorProxy == null) {
+                            objects.add(new Proxy(proxiesBean.getIp(), proxiesBean.getPort()));
+
+                        }
+
+                    }
+
+                }
+                if (proxies.getProxies().size() == 0) {
                     System.out.println("访问大佬给的代理连接池失败!注意查看原因");
-                    getHttpProxyDao();
                 }
 
 
-                return objects;
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
+                response.close();
                 httpClient.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
-        return null;
+
+        return objects;
 
     }
-
-
 
 
     public List<Proxy> getProxiesWuYou() {
@@ -201,7 +209,7 @@ public class GetProxy {
 
         Date date1 = new Date();
 
-        System.out.println("获取连接池["+sum+"]耗时:"+(date1.hashCode()-date.hashCode())/1000+"秒");
+        System.out.println("获取连接池[" + sum + "]耗时:" + (date1.hashCode() - date.hashCode()) / 1000 + "秒");
 
         return proxies;
     }

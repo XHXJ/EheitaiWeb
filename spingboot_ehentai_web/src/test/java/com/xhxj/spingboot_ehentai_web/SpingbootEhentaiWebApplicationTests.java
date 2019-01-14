@@ -8,6 +8,7 @@ import com.xhxj.daomain.EheitaiDetailPage;
 import com.xhxj.daomain.Proxies;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
+import com.xhxj.utils.ErrorProxyUtils;
 import com.xhxj.web.AnalysisUrl;
 import com.xhxj.web.WebMagic;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -37,8 +38,12 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -125,10 +130,9 @@ public class SpingbootEhentaiWebApplicationTests {
     private String url;
 
 
-
-
     /**
      * 获取网站上的代理服务器地址
+     *
      * @return
      */
     private Proxies getHttpProxy() {
@@ -150,7 +154,7 @@ public class SpingbootEhentaiWebApplicationTests {
                 String content = EntityUtils.toString(response.getEntity(), "utf8");
 
 
-                proxies  = JSON.parseObject(content, Proxies.class);
+                proxies = JSON.parseObject(content, Proxies.class);
 
             }
 
@@ -161,7 +165,7 @@ public class SpingbootEhentaiWebApplicationTests {
 
             try {
                 response.close();
-                return  proxies;
+                return proxies;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -219,7 +223,7 @@ public class SpingbootEhentaiWebApplicationTests {
             if (true) {
                 for (EheitaiDetailPage eheitaiDetailPage : eheitaiDetailPages) {
                     for (EheitaiDetailPage detailPage : eheitaiDetailPages) {
-                        if (eheitaiDetailPage.getPage()==detailPage.getPage()&&eheitaiDetailPage.getId()!=detailPage.getId()){
+                        if (eheitaiDetailPage.getPage() == detailPage.getPage() && eheitaiDetailPage.getId() != detailPage.getId()) {
                             //这样就能查看到是否有重复的页面了
                             System.out.println();
                         }
@@ -240,12 +244,23 @@ public class SpingbootEhentaiWebApplicationTests {
     }
 
     @Test
-    public void TestQurl(){
-        String url =null;
-        String query =eheitaiDetailPageDao.findByUrl(url);
+    public void TestQurl() {
+        String url = null;
+        String query = eheitaiDetailPageDao.findByUrl(url);
         System.out.println(query);
     }
 
+    @Autowired
+    ErrorProxyUtils errorProxyUtils;
 
+    @Test
+    public void TestError() {
+
+        errorProxyUtils.analysis();
+
+    }
 }
+
+
+
 
