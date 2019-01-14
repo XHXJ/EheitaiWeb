@@ -28,9 +28,12 @@ public class WebMagicDate implements Pipeline {
     @Autowired
     EheitaiDetailPageService eheitaiDetailPageService;
 
+    public WebMagicDate() {
+    }
 
-
-
+    public WebMagicDate(EheitaiDetailPageService eheitaiDetailPageService) {
+        this.eheitaiDetailPageService = eheitaiDetailPageService;
+    }
     @Override
     public void process(ResultItems resultItems, Task task) {
 //            List<String> a = resultItems.get("jobInfo");

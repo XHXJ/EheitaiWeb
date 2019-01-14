@@ -85,6 +85,9 @@ public class HttpClientDownloader extends AbstractDownloader {
         HttpClientRequestContext requestContext = httpUriRequestConverter.convert(request, task.getSite(), proxy);
         Page page = Page.fail();
         try {
+            //要在这里查询数据库优化重复爬取的连接如果有重复爬取的连接直接跳过请求.
+
+
             httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());
             page = handleResponse(request, request.getCharset() != null ? request.getCharset() : task.getSite().getCharset(), httpResponse, task);
             onSuccess(request);

@@ -30,8 +30,8 @@ public class SimpleProxyProvider implements ProxyProvider {
         this.pointer = pointer;
     }
 
-    public static SimpleProxyProvider from(Proxy... proxies) {
-        List<Proxy> proxiesTemp = new ArrayList<Proxy>(proxies.length);
+    public static SimpleProxyProvider from(List<Proxy> proxies) {
+        List<Proxy> proxiesTemp = new ArrayList<Proxy>();
         for (Proxy proxy : proxies) {
             proxiesTemp.add(proxy);
         }

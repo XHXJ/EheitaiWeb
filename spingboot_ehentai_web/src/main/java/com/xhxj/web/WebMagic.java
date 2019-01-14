@@ -1,21 +1,12 @@
 package com.xhxj.web;
 
-import com.xhxj.dao.EheitaiCatalogDao;
-import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiDetailPage;
-import com.xhxj.daomain.Proxies;
-import com.xhxj.daomain.ProxiesBean;
-import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.ls.LSInput;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
@@ -23,15 +14,10 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
-import us.codecraft.webmagic.scheduler.BloomFilterDuplicateRemover;
 import us.codecraft.webmagic.scheduler.QueueScheduler;
 import us.codecraft.webmagic.selector.Selectable;
 
-import javax.annotation.PostConstruct;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,12 +27,14 @@ import java.util.List;
 @Component
 public class WebMagic implements PageProcessor {
 
+
+
     @Autowired
     AnalysisUrl analysisUrl;
-    @Autowired
-    EheitaiCatalogService eheitaiCatalogDao;
-    @Autowired
-    EheitaiDetailPageService eheitaiDetailPageDao;
+    //@Autowired
+    //EheitaiCatalogService eheitaiCatalogDao;
+   // @Autowired
+   // EheitaiDetailPageService eheitaiDetailPageDao;
     @Autowired
     WebMagicDate webMagicDate;
 
@@ -60,6 +48,12 @@ public class WebMagic implements PageProcessor {
     private Integer count = 0;
 
     private Integer img = 0;
+
+    public WebMagic() {
+    }
+    public WebMagic(EheitaiDetailPageService eheitaiDetailPageService) {
+        new WebMagicDate(eheitaiDetailPageService);
+    }
 
 
     @Override
@@ -114,13 +108,13 @@ public class WebMagic implements PageProcessor {
     /**
      * springboot已启动就去加载全部的url
      */
-    @PostConstruct
-    public void WebMagic() {
+    //@PostConstruct
+    /*public void WebMagic() {
         allUrl = eheitaiCatalogDao.findByUrl();
 
         allImgUrl = eheitaiDetailPageDao.findByUrl();
 
-    }
+    }*/
 
     //一开始就要去查询数据库中的数据,放着等待比对
     private static List<String> allUrl = null;
@@ -338,13 +332,22 @@ public class WebMagic implements PageProcessor {
 
     //    @PostConstruct
 //    @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
+    @Autowired
+    EheitaiDetailPageService eheitaiDetailPageService;
 
+    private static Spider spider =null;
+
+    public void httpweb2(List<String> url, List<Proxy> proxies,EheitaiDetailPageService a)
+    {
+        eheitaiDetailPageService = a;
+        httpweb(url,proxies);
+    }
     /**
      * 爬虫开始的地方
      *
      * @param url 需要爬取的连接
      */
-    public void httpweb(List<String> url, List<ProxiesBean> proxies) {
+    public void httpweb(List<String> url, List<Proxy> proxies) {
         //这是一个抓取
 
         if (url != null && proxies != null) {
@@ -354,11 +357,12 @@ public class WebMagic implements PageProcessor {
             //给爬虫设置参数
 
 
-            Spider spider = Spider.create(new WebMagic())
+            spider = Spider.create(new WebMagic())
                     .addUrl(strings)
                     .addPipeline(webMagicDate)
                     //设置去重
-                    .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
+//                    .setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(10000000)))
+                    .setScheduler(new QueueScheduler().setDuplicateRemover(new WebMagicScheduler(eheitaiDetailPageService)))
                     .thread(100);
 
 
@@ -370,12 +374,12 @@ public class WebMagic implements PageProcessor {
             HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
 
 
+
+
+
             httpClientDownloader.setProxyProvider(
-                    SimpleProxyProvider.from(
-                            new Proxy(proxies.get(0).getIp(),proxies.get(0).getPort()),
-                            new Proxy(proxies.get(1).getIp(), proxies.get(1).getPort()),
-                            new Proxy(proxies.get(2).getIp(), proxies.get(2).getPort())
-                    ));
+                    //把连接池list丢进去
+                    SimpleProxyProvider.from(proxies));
 
             //设置爬虫代理
             spider.setDownloader(httpClientDownloader);
@@ -387,6 +391,14 @@ public class WebMagic implements PageProcessor {
         }
 
     }
+
+    /**
+     * 关闭方法
+     */
+    public void stop(){
+        spider.stop();
+    }
+
 
 
 }

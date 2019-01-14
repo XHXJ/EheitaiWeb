@@ -16,8 +16,11 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import us.codecraft.webmagic.proxy.Proxy;
 
 import java.awt.print.Pageable;
 import java.io.*;
@@ -25,10 +28,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @PropertySource("classpath:Configuration.properties")
 @Component
+@EnableAsync
 public class Start {
     @Autowired
     AnalysisUrl analysisUrl;
@@ -48,14 +53,15 @@ public class Start {
     /**
      * 开始爬虫
      */
+    @Async
     @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
     public void Start() {
 
 
-        analysisUrl.getHttp();
-        //获取解析结果存入sql
-        analysisUrl.analysisHtml();
-        //下载页面
+//        analysisUrl.getHttp();
+//        //获取解析结果存入sql
+//        analysisUrl.analysisHtml();
+//        //下载页面
 
 
         //把sql中没有爬的连接全部丢给爬虫
@@ -86,7 +92,8 @@ public class Start {
              *
              *
              */
-            webMagic.httpweb(urlall, getHttpProxy());
+            //webMagic.httpweb(urlall, getHttpProxy());
+            webMagic.httpweb2(urlall,getHttpProxy(),eheitaiDetailPageService);
 
 
             //这里的逻辑需要优化,之前作品应该完成
@@ -125,6 +132,63 @@ public class Start {
             }
 
         }
+    }
+
+    /**
+     * 获取多个代理对象
+     * 使其不重复
+     *
+     * @return
+     */
+    private List<Proxy> getHttpProxy() {
+        List<Proxy> proxies = new ArrayList<>();
+
+        Proxy httpProxyOne = getHttpProxyOne();
+        //记录耗时
+        Date date = new Date();
+
+        int sum = 3;
+
+        while (proxies.size() < sum) {
+
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (httpProxyOne != null) {
+                if (proxies.size() > 0) {
+                    //如果不是第一个就去对比
+                    for (Proxy proxy : proxies) {
+                        String host = proxy.getHost();
+
+                        if (!httpProxyOne.getHost().equals(host)) {
+                            proxies.add(httpProxyOne);
+                            //如果当前获取到的代理服务器已经大于三个了,就返回
+                            break;
+
+                        }
+                        //别忘了重新访问赋值
+                        httpProxyOne = getHttpProxyOne();
+
+                    }
+                } else {
+                    //如果是第一个就添加一个代理服务器
+                    proxies.add(httpProxyOne);
+                }
+
+            } else {
+                //重新去调用获取代理服务器
+                System.out.println("获取代理服务器失败检查连接池获取");
+                getHttpProxy();
+            }
+        }
+
+        Date date1 = new Date();
+
+        System.out.println("获取连接池["+sum+"]耗时:"+(date1.hashCode()-date.hashCode())/1000+"秒");
+
+        return proxies;
     }
 
     /**
@@ -199,7 +263,7 @@ public class Start {
      *
      * @return
      */
-    private List<ProxiesBean> getHttpProxy() {
+    private Proxy getHttpProxyOne() {
         //创建HttpClient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -208,9 +272,8 @@ public class Start {
 
         CloseableHttpResponse response = null;
 
-        Proxies proxies = null;
 
-        List<ProxiesBean> objects = new ArrayList<>();
+        Proxy objects = null;
         try {
             //使用HttpClient发起请求，获取response
             response = httpClient.execute(httpGet);
@@ -226,11 +289,7 @@ public class Start {
                 String[] split = content.split("\n");
                 for (String s : split) {
                     String[] split1 = s.split(":");
-                    ProxiesBean proxiesBean = new ProxiesBean();
-                    proxiesBean.setIp(split1[0]);
-                    proxiesBean.setPort(Integer.valueOf(split1[1]));
-                    objects.add(proxiesBean);
-
+                    objects = new Proxy(split1[0], Integer.valueOf(split1[1]));
                 }
 
 
@@ -243,8 +302,10 @@ public class Start {
 
             try {
                 response.close();
+
                 return objects;
-            } catch (IOException e) {
+
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             try {
@@ -252,11 +313,17 @@ public class Start {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            return null;
-
         }
+        return null;
     }
 
+    @Async
+    @Scheduled(initialDelay = 60 * 1000, fixedDelay =  60 * 1000)
+    public void stop(){
 
+        System.out.println("-------------------------------"+"\n"+"每60秒执行一次");
+        //执行关闭
+        webMagic.stop();
+
+    }
 }

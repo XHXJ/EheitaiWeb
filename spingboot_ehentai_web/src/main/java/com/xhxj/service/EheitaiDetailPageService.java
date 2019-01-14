@@ -4,7 +4,6 @@ import com.xhxj.daomain.EheitaiDetailPage;
 
 import java.util.List;
 
-
 public interface EheitaiDetailPageService {
 
     //保存对象
