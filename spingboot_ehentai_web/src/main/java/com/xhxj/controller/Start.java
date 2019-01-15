@@ -26,6 +26,11 @@ import java.util.List;
 @Component
 @EnableAsync
 public class Start {
+
+    /**
+     * 所有的bean对象应该从这里开始
+     */
+
     @Autowired
     AnalysisUrl analysisUrl;
 
@@ -37,6 +42,16 @@ public class Start {
 
     @Autowired
     EheitaiDetailPageService eheitaiDetailPageService;
+
+    @Autowired
+    WebMagicScheduler webMagicScheduler;
+
+    @Autowired
+    ErrorProxyUtils errorProxyUtils;
+
+    @Autowired
+    ErrorProxyService errorProxyService;
+
 
 
     /**
@@ -73,9 +88,6 @@ public class Start {
             }
             //去看看有没有之前报错的数据也一并给他丢进去了
             urlall.addAll(readErrorUrl());
-
-            //这里是需要爬取的对象
-            String[] urllist = urlall.toArray(new String[urlall.size()]);
 
 
 
@@ -165,12 +177,12 @@ public class Start {
     }
 
 
-    @Autowired
-    ErrorProxyUtils errorProxyUtils;
 
-    @Autowired
-    ErrorProxyService errorProxyService;
 
+
+    /**
+     * 使用多线程去异步执行下面的子线程
+     */
     @Async
     @Scheduled(initialDelay = 1 * 1000, fixedDelay = 15 * 1000)
     public void stop() {
@@ -192,8 +204,6 @@ public class Start {
 
     }
 
-    @Autowired
-    WebMagicScheduler webMagicScheduler;
 
     @Async
     @Scheduled(initialDelay = 1 * 100, fixedDelay = 30 * 1000)

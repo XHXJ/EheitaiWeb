@@ -1,6 +1,7 @@
 package com.xhxj.spingboot_ehentai_web;
 
 import com.alibaba.fastjson.JSON;
+import com.xhxj.controller.ActiveMqQueueProduce;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
@@ -26,6 +27,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.JMSException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -255,7 +257,7 @@ public class SpingbootEhentaiWebApplicationTests {
             //查看作品的实际下载页数
             Integer byGidWherePage = eheitaiDetailPageDao2.findByGidWherePage(gid);
 
-            if (byGidWhereLanguage.equals(byGidWherePage) ) {
+            if (byGidWhereLanguage.equals(byGidWherePage)) {
                 //如果当前作品eheitaiCatalog记录的页数相等于他对应的eheitaiDetailPages的总数,那作品就下载完成
                 //更新作品状态
                 List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
@@ -267,17 +269,30 @@ public class SpingbootEhentaiWebApplicationTests {
                     //作品设置下载值为1,表示该作品抓取完成
                     eheitaiCatalogDao.save(eheitaiCatalog);
 
-                } else if (byGid.size()>1){
+                } else if (byGid.size() > 1) {
                     System.out.println("有重复gid的作品");
                 }
 
 
-            } else if (byGidWherePage > byGidWhereLanguage){
+            } else if (byGidWherePage > byGidWhereLanguage) {
                 System.out.println("有重复下载数据");
             }
         }
     }
+
+    @Autowired
+    ActiveMqQueueProduce activeMqQueueProduce;
+
+    @Test
+    public void Mqfor() {
+        try {
+            activeMqQueueProduce.postMessage(1341830);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
 
 
 

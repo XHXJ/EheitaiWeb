@@ -197,13 +197,15 @@ public class AnalysisUrl {
         String html = "";
         URIBuilder uriBuilder = null;
         HttpGet httpGet = null;
-        List<EheitaiSearch> changejson = Json.changejson();
+//        List<EheitaiSearch> changejson = Json.changejson();
         try {
+            /**
+             * 这里需要修改为对象传参
+             */
             uriBuilder = new URIBuilder("https://exhentai.org/");
-            for (EheitaiSearch eheitaiSearch : changejson) {
-                uriBuilder.setParameter("f_search", eheitaiSearch.getF_search());
+                uriBuilder.setParameter("f_search", "guro");
                 uriBuilder.setParameter("page",page);
-            }
+
 
             httpGet = new HttpGet(uriBuilder.build());
 

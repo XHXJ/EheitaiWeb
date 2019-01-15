@@ -1,10 +1,14 @@
-package com.xhxj.spingboot_ehentai_download;
+package com.xhxj;
 
+import com.xhxj.Component.Download;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.logging.log4j.LogManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.apache.logging.log4j.Logger;
 
 import javax.jms.*;
 
@@ -37,15 +41,15 @@ public class SpingbootEhentaiDownloadApplicationTests {
         //接收消息
         MessageConsumer consumer = session.createConsumer(test);
 
-        while (true){
+        while (true) {
             //等待10秒，在10秒内一直处于接收消息状态
             Message message = consumer.receive(10000);
 
-            if(message!=null){
-                if(message instanceof  TextMessage){
+            if (message != null) {
+                if (message instanceof TextMessage) {
                     TextMessage textMessage = (TextMessage) message;
 
-                    System.out.println("完成爬取的作品："+textMessage.getText());
+                    System.out.println("完成爬取的作品：" + textMessage.getText());
                     continue;
                 }
             }
@@ -54,6 +58,15 @@ public class SpingbootEhentaiDownloadApplicationTests {
         //关闭资源
 //        session.close();
 //        connection.close();
+
+
     }
+
+
+    @Autowired
+    Download start;
+
+    private static final Logger logger = LogManager.getLogger(SpingbootEhentaiDownloadApplication.class);
+
 }
 
