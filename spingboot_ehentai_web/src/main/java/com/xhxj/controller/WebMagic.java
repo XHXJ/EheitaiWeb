@@ -1,4 +1,4 @@
-package com.xhxj.web;
+package com.xhxj.controller;
 
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiDetailPage;
@@ -21,7 +21,6 @@ import us.codecraft.webmagic.selector.Selectable;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 

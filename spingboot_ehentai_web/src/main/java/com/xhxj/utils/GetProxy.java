@@ -140,7 +140,7 @@ public class GetProxy {
                         if (errorProxy == null) {
                             objects.add(new Proxy(proxiesBean.getIp(), proxiesBean.getPort()));
                         }
-                        System.out.println("代理地址在黑名单中:"+proxiesBean+"\n" +
+                        System.out.println("代理地址在黑名单中:"+proxiesBean.getIp()+"\n" +
                                 "当前拥有代理:"+objects.size()+"个");
                     }
 

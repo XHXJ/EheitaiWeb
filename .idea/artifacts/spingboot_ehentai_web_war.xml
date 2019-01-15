@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="spingboot_ehentai_web:war">
+    <output-path>$PROJECT_DIR$/spingboot_ehentai_web/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>spingboot_ehentai_web</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="spingboot_ehentai_web-0.0.1-SNAPSHOT.war">
+      <element id="artifact" artifact-name="spingboot_ehentai_web:war exploded" />
+    </root>
+  </artifact>
+</component>

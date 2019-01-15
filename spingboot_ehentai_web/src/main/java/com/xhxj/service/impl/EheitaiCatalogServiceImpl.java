@@ -1,11 +1,10 @@
 package com.xhxj.service.impl;
 
-import com.sun.xml.internal.stream.Entity;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.service.EheitaiCatalogService;
-import com.xhxj.web.ActiveMqQueueProduce;
+import com.xhxj.controller.ActiveMqQueueProduce;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

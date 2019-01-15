@@ -1,4 +1,4 @@
-package com.xhxj.web;
+package com.xhxj.controller;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.stereotype.Component;

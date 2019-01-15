@@ -1,8 +1,7 @@
-package com.xhxj.web;
+package com.xhxj.controller;
 
 
 import com.xhxj.daomain.EheitaiCatalog;
-import com.xhxj.daomain.ErrorProxy;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
 import com.xhxj.service.ErrorProxyService;
@@ -20,9 +19,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @PropertySource("classpath:Configuration.properties")
@@ -49,7 +46,8 @@ public class Start {
     @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
     public void Start() {
 
-        Date date1 = new Date();
+
+        //获取最初要开始爬取的数据
 
         //解析想要获取的数据
         analysisUrl.getHttp();
@@ -80,24 +78,13 @@ public class Start {
             String[] urllist = urlall.toArray(new String[urlall.size()]);
 
 
-            //获取代理对象
-            /**
-             * 替换爬虫了!!!!
-             *
-             *
-             */
-            //webMagic.httpweb(urlall, getHttpProxy());
 
+            //第一次爬虫开始
             webMagic.httpWebStart(urlall, getHttpProxy(), eheitaiCatalogService, eheitaiDetailPageService);
             //这里的逻辑需要优化,之前作品应该完成
-
             //这是第一次爬取所有报错的连接
-
-
             //如果有错误地址就一直重复爬取
             //在重复爬取几次后,就只爬取图片页面的数据
-            int count = 2;
-            int i = 0;
             while (true) {
 
                 List<String> errorUrl = readErrorUrl();
@@ -117,9 +104,10 @@ public class Start {
                 //重新开始爬取
                 webMagic.httpweb(errorUrl, getHttpProxy());
 
-                i++;
             }
 
+        }else {
+            System.out.println("所有数据已爬取成功~~~~~~~~~~~~~~~~~~~~~~~~");
         }
     }
 
@@ -165,38 +153,6 @@ public class Start {
             //合并两个读取的连接
             list.addAll(banlist);
 
-//            List<String> listAll = new ArrayList<>();
-//            //处理重复数据
-//            for (String s : list) {
-//
-//
-//                //如果作品已完成,就不要添加连接
-//                //根据url
-//                EheitaiCatalog eheitaiCatalog = eheitaiCatalogService.findByUrl(s);
-//                //有才去执行
-//                if (eheitaiCatalog != null) {
-//
-//
-//                    Integer id = eheitaiCatalog.getId();
-//                    //更具获取到的id去查询作品是否完成
-//                    //先查询总下载页数
-//                    Integer count = eheitaiDetailPageService.findByUrlCount(id);
-//                    //如果作品本身的总页数,不等于sql中的总页数,继续爬取
-//                    if (eheitaiCatalog.getLength() != count) {
-//                        listAll.add(s);
-//                    }
-//
-//                }
-//                //s为连接
-//                //如果sql中已经存在该页面就不需要添加
-//                String byUrl = eheitaiDetailPageService.findByUrl(s);
-//                if (byUrl == null) {
-//                    listAll.add(s);
-//                }
-//
-//            }
-
-
             return list;
 
 
@@ -219,7 +175,7 @@ public class Start {
     @Scheduled(initialDelay = 1 * 1000, fixedDelay = 15 * 1000)
     public void stop() {
 
-        System.out.println("-------------------------------" + "\n" + "每60秒执行一次");
+        System.out.println("-------------------------------" + "\n" + "处理被ban或报错的代理服务器");
         //执行关闭
 //        webMagic.stop();
 
@@ -247,4 +203,6 @@ public class Start {
 
 
     }
+
+
 }

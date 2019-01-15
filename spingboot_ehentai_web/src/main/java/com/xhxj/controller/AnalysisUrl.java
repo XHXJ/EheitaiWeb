@@ -1,8 +1,7 @@
-package com.xhxj.web;
+package com.xhxj.controller;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
-import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.daomain.EheitaiSearch;
 import com.xhxj.service.EheitaiCatalogService;
