@@ -8,7 +8,7 @@
 
 于是花了几分钟蹦出了这么一张图
 
-![](C:\Users\78222\Desktop\爬虫.bmp)
+![](https://github.com/XHXJ/EheitaiWeb/blob/master/spingboot_ehentai_web/img/%E7%88%AC%E8%99%AB.bmp)
 
 一张流程图.....恩..看了看自己有分布式的经验,既然要搞那就上分布式上集群上中间件异步处理,看着就高大上!
 
