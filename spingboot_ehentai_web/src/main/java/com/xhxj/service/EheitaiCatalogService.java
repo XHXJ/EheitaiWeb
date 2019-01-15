@@ -47,4 +47,7 @@ public interface EheitaiCatalogService {
 
     //查看作品页面加起来的总和
     Integer findByUrlCountPage();
+
+    //只查询指定下载状态的作品
+    List<EheitaiCatalog> findByComplete(Integer integer);
 }

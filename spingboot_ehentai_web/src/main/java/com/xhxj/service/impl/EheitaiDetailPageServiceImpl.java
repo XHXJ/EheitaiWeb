@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,6 +50,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
             //先去查询有没有这个页数了不然不保存
             List<EheitaiDetailPage> byImgUrlAndPagego = eheitaiDetailPageDao.findByImgUrlAndPage(gid, page);
 
+
             //这是查出来的数据
 //        EheitaiDetailPage byImgUrlAndPage = new EheitaiDetailPage();
 
@@ -58,18 +61,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
             } else {
                 System.out.println("图片下载页面爬取到重复数据!注意优化逻辑");
             }
-/*        else if (byImgUrlAndPage.getImgUrl().equals("https://exhentai.org/img/509.gif")){
-            byImgUrlAndPage = byImgUrlAndPagego.get(0);
-            //覆盖原来的,大概是这样吧
-            byImgUrlAndPage.setPage(pageeheitaiDetailPage.getPage());
-            byImgUrlAndPage.setUrl(pageeheitaiDetailPage.getUrl());
-            byImgUrlAndPage.setFileLog(pageeheitaiDetailPage.getFileLog());
-            byImgUrlAndPage.setResolution(pageeheitaiDetailPage.getResolution());
-            byImgUrlAndPage.setFileSize(pageeheitaiDetailPage.getFileSize());
-            byImgUrlAndPage.setImgUrl(pageeheitaiDetailPage.getImgUrl());
 
-            eheitaiDetailPageDao.save(byImgUrlAndPage);
-        }*/
         } else {
             System.out.println("警告!爬虫被封!返回地址为:https://exhentai.org/img/509.gif");
         }
@@ -101,7 +93,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
             //保存
             //是时候重写保存语句了....
             eheitaiCatalogDao.save(eheitaiCatalog);
-        }else {
+        } else {
             System.out.println(byGid);
             System.out.println("为什么没有数据,或者不是一个");
         }
@@ -182,10 +174,26 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
     /**
      * 查询当前页数的总和
+     *
      * @return
      */
     @Override
     public Integer findByUrlCountPage() {
         return eheitaiDetailPageDao.findByUrlCountPage();
+    }
+
+    @Override
+    public List<String> findByUrlComplete() {
+        List<String> byGidAndUrl = new ArrayList<>();
+        //根据完成状态查询作品
+        List<EheitaiCatalog> eheitaiCatalog = eheitaiCatalogDao.findByComplete(0);
+        for (EheitaiCatalog catalog : eheitaiCatalog) {
+
+            Integer gid = catalog.getGid();
+
+            byGidAndUrl.addAll(eheitaiDetailPageDao.findByGidAndUrl(gid)) ;
+        }
+
+        return byGidAndUrl;
     }
 }

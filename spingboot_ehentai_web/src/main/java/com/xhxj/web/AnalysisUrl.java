@@ -46,6 +46,9 @@ public class AnalysisUrl {
     @Value("${catalog}")
     private String catalog;
 
+    @Value("${page}")
+    private String page;
+
 
     @Autowired
     EheitaiCatalogService eheitaiCatalogDao;
@@ -200,6 +203,7 @@ public class AnalysisUrl {
             uriBuilder = new URIBuilder("https://exhentai.org/");
             for (EheitaiSearch eheitaiSearch : changejson) {
                 uriBuilder.setParameter("f_search", eheitaiSearch.getF_search());
+                uriBuilder.setParameter("page",page);
             }
 
             httpGet = new HttpGet(uriBuilder.build());
@@ -251,8 +255,7 @@ public class AnalysisUrl {
                 return coding;
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("接收网页出错");
+            System.out.println("接收网页出错,检查网络状况");
         } finally {
             try {
                 response.close();
@@ -328,6 +331,4 @@ public class AnalysisUrl {
             e.printStackTrace();
         }
     }
-
-
 }

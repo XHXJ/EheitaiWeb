@@ -49,6 +49,8 @@ public class HttpClientDownloader extends AbstractDownloader {
 
     private boolean responseHeader = true;
 
+
+
     public void setHttpUriRequestConverter(HttpUriRequestConverter httpUriRequestConverter) {
         this.httpUriRequestConverter = httpUriRequestConverter;
     }
@@ -86,9 +88,7 @@ public class HttpClientDownloader extends AbstractDownloader {
         HttpClientRequestContext requestContext = httpUriRequestConverter.convert(request, task.getSite(), proxy);
         Page page = Page.fail();
         try {
-            //要在这里查询数据库优化重复爬取的连接如果有重复爬取的连接直接跳过请求.
-
-
+            //这里会发送队列中的网站去查询
             httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());
             page = handleResponse(request, request.getCharset() != null ? request.getCharset() : task.getSite().getCharset(), httpResponse, task);
             onSuccess(request);
@@ -97,10 +97,6 @@ public class HttpClientDownloader extends AbstractDownloader {
             //判断为返回文本长度
             //只针对Ehentai,其他网站请自行判断
             if (Integer.valueOf(page.getRawText().length()) < 280){
-
-
-
-
                 //这个代理器被封了
                 String url = proxy.getHost()+":"+proxy.getPort()+":"+page.getRawText()+"\n";
 

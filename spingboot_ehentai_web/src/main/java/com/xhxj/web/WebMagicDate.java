@@ -92,12 +92,7 @@ public class WebMagicDate implements Pipeline {
                 if (StringUtils.isNotEmpty(complete)) {
 //                    System.out.println("@@@@@@@@@@@@@@@@@@作品:" + complete + "爬取完毕通知下载");
                     //作品已经要完成下载了
-
                     eheitaiCatalogService.saveComplete(gid);
-
-
-
-
                 }
                 break;
         }

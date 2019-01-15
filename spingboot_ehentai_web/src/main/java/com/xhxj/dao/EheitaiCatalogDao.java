@@ -25,5 +25,23 @@ public interface EheitaiCatalogDao extends JpaRepository<EheitaiCatalog,Integer>
     //查看作品页面总和
     @Query(value = "SELECT COUNT(page)  FROM eheitai_detail_page",nativeQuery = true)
     Integer findByUrlCountPage();
+
+
+    //查询指定id下的总页数
+    @Query(value = "SELECT SUM(eheitai_catalog.length) FROM eheitai_catalog WHERE gid = ? ",nativeQuery = true)
+    Integer findByGidWhereLanguage(Integer integer);
+
+    //查询全部的gid
+    @Query(value = "SELECT gid FROM eheitai_catalog",nativeQuery = true)
+    List<Integer> findGidAll();
+
+
+    //根据完成情况查询作品
+    List<EheitaiCatalog> findByComplete(Integer integer);
+
+
+    //根据作品gid去返回作品记录的总页数
+    @Query(value = "SELECT length FROM eheitai_catalog WHERE gid = ?" ,nativeQuery = true)
+    Integer findByGidGetLength(Integer gid);
 }
 

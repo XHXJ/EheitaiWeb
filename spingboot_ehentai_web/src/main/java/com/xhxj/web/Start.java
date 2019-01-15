@@ -62,7 +62,7 @@ public class Start {
         //这里以后要改要有条件的查询
 
 
-        List<EheitaiCatalog> all = eheitaiCatalogService.findAll();
+        List<EheitaiCatalog> all = eheitaiCatalogService.findByComplete(0);
         List<String> urlall = new ArrayList<>();
 
         //添加完成查询方法,如果完成的不需要爬取
@@ -110,18 +110,6 @@ public class Start {
 
                 System.out.println("已爬取:"+integer1+"页@剩:"+integer+"页");
                 if (integer.equals(integer1) ) {
-//                    Date date = new Date();
-//                    long time = date.getTime();
-//                    long time1 = date1.getTime();
-//
-//                    long time11 = time- time1;
-//
-//                    Date date2 = new Date(time11);
-//
-//
-//                    SimpleDateFormat formatter = new SimpleDateFormat("dd天 HH:mm:ss");
-//                    String dateString = formatter.format(date2);
-
                     System.out.println("爬取完毕!!!");
                     System.exit(0);
                 }
@@ -177,39 +165,39 @@ public class Start {
             //合并两个读取的连接
             list.addAll(banlist);
 
-            List<String> listAll = new ArrayList<>();
-            //处理重复数据
-            for (String s : list) {
+//            List<String> listAll = new ArrayList<>();
+//            //处理重复数据
+//            for (String s : list) {
+//
+//
+//                //如果作品已完成,就不要添加连接
+//                //根据url
+//                EheitaiCatalog eheitaiCatalog = eheitaiCatalogService.findByUrl(s);
+//                //有才去执行
+//                if (eheitaiCatalog != null) {
+//
+//
+//                    Integer id = eheitaiCatalog.getId();
+//                    //更具获取到的id去查询作品是否完成
+//                    //先查询总下载页数
+//                    Integer count = eheitaiDetailPageService.findByUrlCount(id);
+//                    //如果作品本身的总页数,不等于sql中的总页数,继续爬取
+//                    if (eheitaiCatalog.getLength() != count) {
+//                        listAll.add(s);
+//                    }
+//
+//                }
+//                //s为连接
+//                //如果sql中已经存在该页面就不需要添加
+//                String byUrl = eheitaiDetailPageService.findByUrl(s);
+//                if (byUrl == null) {
+//                    listAll.add(s);
+//                }
+//
+//            }
 
 
-                //如果作品已完成,就不要添加连接
-                //更具url
-                EheitaiCatalog eheitaiCatalog = eheitaiCatalogService.findByUrl(s);
-                //有才去执行
-                if (eheitaiCatalog != null) {
-
-
-                    Integer id = eheitaiCatalog.getId();
-                    //更具获取到的id去查询作品是否完成
-                    //先查询总下载页数
-                    Integer count = eheitaiDetailPageService.findByUrlCount(id);
-                    //如果作品本身的总页数,不等于sql中的总页数,继续爬取
-                    if (eheitaiCatalog.getLength() != count) {
-                        listAll.add(s);
-                    }
-
-                }
-                //s为连接
-                //如果sql中已经存在该页面就不需要添加
-                String byUrl = eheitaiDetailPageService.findByUrl(s);
-                if (byUrl == null) {
-                    listAll.add(s);
-                }
-
-            }
-
-
-            return listAll;
+            return list;
 
 
         } catch (IOException e) {
@@ -228,7 +216,7 @@ public class Start {
     ErrorProxyService errorProxyService;
 
     @Async
-    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 60 * 1000)
+    @Scheduled(initialDelay = 1 * 1000, fixedDelay = 15 * 1000)
     public void stop() {
 
         System.out.println("-------------------------------" + "\n" + "每60秒执行一次");

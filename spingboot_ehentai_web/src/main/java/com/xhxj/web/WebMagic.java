@@ -138,7 +138,6 @@ public class WebMagic implements PageProcessor {
     private void repetition(Page page, List<String> list) {
 
 
-        List<String> finish = new ArrayList<>();
 
 
 
@@ -202,16 +201,20 @@ public class WebMagic implements PageProcessor {
         //总页面
         String lastpage = page.getHtml().xpath("//*[@id='i2']/div[1]/div/span[2]/text()").toString();
 
-        Integer currentpagein = Integer.valueOf(currentpage);
-        double duob = (Integer.valueOf(lastpage) * 0.99);
-        //当前页面快要完全下载的时候,通知后台去检测是否完成
-        Integer round = Math.toIntExact(Math.round(duob));
-        //如果到了最后一页的图片页数应该是和当前页数重复的.
-        if (currentpagein > round) {
+//        //这是下载到99时的页数
+//        int duob =(int) (Integer.valueOf(lastpage) * 0.99);
+//        //当前页面快要完全下载的时候,通知后台去检测是否完成
+//        //这是当前页
+//        Integer integer1 = Integer.valueOf(currentpage);
+//
+//
+        //我在下面已经写了判断,只要是图片就进去判断
+
+
             //已经是图片页页尾,该作品爬取完毕
             //用中间件MQ通知下载器,需要把当前作品id传过去
             page.putField("complete", gid);
-        }
+
 
 
     }

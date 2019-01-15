@@ -11,8 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class ErrorProxyUtils {
@@ -42,9 +41,61 @@ public class ErrorProxyUtils {
             fileWriter = new FileWriter("./error/errorProxy.txt");
             fileWriter.write("");
 
+
+            //去重复并计数
+
+            listProxy.addAll(banProxyIP);
+
+
+
+            Map<String, Integer> roles = new HashMap<>();
             ErrorProxy errorProxy = null;
             String[] split = null;
+            for (String s : listProxy) {
+                //统计一下重复数据
+                if (roles.containsKey(s)) {//判断 key 值是否等于当前值的 key
+                    roles.put(s, roles.get(s) + 1);
+                } else {
+                    roles.put(s, 1);
+                }
+            }
+            for (String s : roles.keySet()) {
+                Integer integer = roles.get(s);
+                errorProxy = new ErrorProxy();
+                split = s.split(":");
+                errorProxy.setHost(split[0]);
+                errorProxy.setPort(Integer.valueOf(split[1]));
+                errorProxy.setDate(new Date());
+                errorProxy.setState("error");
+                if (split.length==3){
+                    errorProxy.setTxt(split[2]);
+                    errorProxy.setState("ban");
+                }
+                errorProxy.setCounter(integer);
+                errorProxyService.save(errorProxy);
+            }
 
+
+
+
+
+
+//
+//            for (String s : listProxy) {
+//                errorProxy = new ErrorProxy();
+//                split = s.split(":");
+//                errorProxy.setHost(split[0]);
+//                errorProxy.setPort(Integer.valueOf(split[1]));
+//                errorProxy.setDate(new Date());
+//                errorProxy.setState("error");
+//                errorProxyService.save(errorProxy);
+//
+//            }
+
+
+
+
+/*
             for (String s : banProxyIP) {
                 int i = 0;
                 errorProxy = new ErrorProxy();
@@ -100,7 +151,7 @@ public class ErrorProxyUtils {
                 }
 
                 i = 0;
-            }
+            }*/
 
 
         } catch (IOException e) {
@@ -109,6 +160,14 @@ public class ErrorProxyUtils {
             e.printStackTrace();
         }
 
-
     }
+
+    //统计重复
+    public int repetition(Set<String> hasRoles,List<String> myRoles){
+        hasRoles.retainAll(myRoles);
+        return hasRoles.size();
+    }
+
+
 }
+

@@ -6,19 +6,42 @@ import com.xhxj.service.ErrorProxyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+
 @Service
 public class ErrorProxyServiceImpl  implements ErrorProxyService {
 
     @Autowired
     ErrorProxyDao errorProxyDao;
 
+
+
     @Override
     public void save(ErrorProxy errorProxy) {
-        errorProxyDao.save(errorProxy);
+        //判断一下有没有重复的重复的就更新
+        ErrorProxy byHost = errorProxyDao.findByHost(errorProxy.getHost());
+        if (byHost==null){
+            errorProxyDao.save(errorProxy);
+        }else {
+            //如果有了就保存一下之前的数据
+            byHost.setDate(new Date());
+            byHost.setCounter(byHost.getCounter()+errorProxy.getCounter());
+            byHost.setPort(errorProxy.getPort());
+            byHost.setTxt(errorProxy.getTxt());
+            errorProxyDao.save(byHost);
+        }
+
+
+
+
     }
 
     @Override
     public ErrorProxy finByHost(String s) {
+
+
+
+
         return errorProxyDao.findByHost(s);
     }
 

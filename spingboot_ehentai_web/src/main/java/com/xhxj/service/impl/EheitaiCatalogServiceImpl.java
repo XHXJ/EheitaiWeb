@@ -1,6 +1,8 @@
 package com.xhxj.service.impl;
 
+import com.sun.xml.internal.stream.Entity;
 import com.xhxj.dao.EheitaiCatalogDao;
+import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.web.ActiveMqQueueProduce;
@@ -16,6 +18,8 @@ import java.util.List;
 public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
     @Autowired
     EheitaiCatalogDao eheitaiCatalogDao;
+    @Autowired
+    EheitaiDetailPageDao eheitaiDetailPageDao;
     @Autowired
     ActiveMqQueueProduce activeMqQueueProduce;
 
@@ -64,7 +68,7 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
             eheitaiCatalog.setToken(pageEheitaiCatalog.getToken());
 
             eheitaiCatalogDao.save(eheitaiCatalog);
-        }else {
+        } else {
             System.out.println("为什么会不是1????,或者没有数据?");
         }
     }
@@ -87,16 +91,50 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
     @Override
     public void saveComplete(Integer gid) {
 
-        List<EheitaiCatalog> all = eheitaiCatalogDao.findByGid(gid);
+//        List<EheitaiCatalog> all = eheitaiCatalogDao.findByGid(gid);
 
-        if (all.get(0).getEheitaiDetailPages().size() == all.get(0).getLength()) {
-            //如果当前作品eheitaiCatalog记录的页数相等于他对应的eheitaiDetailPages的总数,那作品就下载完成
-            try {
-                activeMqQueueProduce.postMessage(gid);
+        //查看gid作品的总页数
+        //判断这个作品作品页面获取了没
+        Integer length =  eheitaiCatalogDao.findByGidGetLength(gid);
 
-            } catch (JMSException e) {
-                System.out.println("发送消息失败,请检查ActiveMQ是否启动");
-                e.printStackTrace();
+        if (length!=null) {
+            //如果还是0说明之前详情页还没爬下来呢
+            if (length != 0) {
+
+
+                Integer byGidWhereLanguage = eheitaiCatalogDao.findByGidWhereLanguage(gid);
+                //查看作品的实际下载页数
+                Integer byGidWherePage = eheitaiDetailPageDao.findByGidWherePage(gid);
+
+                if (byGidWhereLanguage.equals(byGidWherePage) ) {
+                    //如果当前作品eheitaiCatalog记录的页数相等于他对应的eheitaiDetailPages的总数,那作品就下载完成
+                    //更新作品状态
+                    List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
+                    if (byGid.size() == 1) {
+                        //确保作品数据唯一
+
+                        EheitaiCatalog eheitaiCatalog = byGid.get(0);
+                        eheitaiCatalog.setComplete(1);
+                        //作品设置下载值为1,表示该作品抓取完成
+                        eheitaiCatalogDao.save(eheitaiCatalog);
+
+                    } else if (byGid.size() > 1) {
+                        System.out.println("有重复gid的作品");
+                    }
+
+
+                    try {
+                        activeMqQueueProduce.postMessage(gid);
+
+                    } catch (JMSException e) {
+                        System.out.println("发送消息失败,请检查ActiveMQ是否启动");
+                        e.printStackTrace();
+                    }
+                } else if (byGidWherePage > byGidWhereLanguage) {
+                    //判断实际下载页数是否大于作品总页数
+                    System.out.println("GID:" + gid + "  一般你看到这个消息的时候,说明实际下载页数,比作品总数多,sql中有重复数据,除非是他网站数据出问题,不然这个问题就很麻烦了");
+
+                }
             }
         }
     }
@@ -114,6 +152,7 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
     /**
      * 根据作品url连接去查询作品
+     *
      * @param s 作品的url连接
      * @return
      */
@@ -125,11 +164,21 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
 
     /**
      * 查看作品页面总和
+     *
      * @return
      */
     @Override
     public Integer findByUrlCountPage() {
         return eheitaiCatalogDao.findByUrlCountPage();
+    }
+
+    /**
+     * 只查询指定下载状态的作品
+     *
+     * @return
+     */
+    public List<EheitaiCatalog> findByComplete(Integer integer) {
+        return eheitaiCatalogDao.findByComplete(integer);
     }
 
 

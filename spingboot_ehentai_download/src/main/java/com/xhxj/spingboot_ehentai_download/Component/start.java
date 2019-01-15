@@ -10,11 +10,11 @@ import javax.jms.*;
 public class start {
 
     /**
-     * 开始mq接受作品完成消息
+     * 开始接受作品完成消息
      * @throws JMSException
      */
     @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
-    public void TestMq() throws JMSException {
+    public void Test() throws JMSException {
 
         System.out.println("等待接受消息");
         //创建ConnectionFactory

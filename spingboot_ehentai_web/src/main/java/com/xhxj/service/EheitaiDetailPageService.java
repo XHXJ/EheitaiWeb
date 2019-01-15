@@ -61,4 +61,10 @@ public interface EheitaiDetailPageService {
 
     //查询当前所有页数的总和
     Integer findByUrlCountPage();
+
+    /**
+     * 查询排除已完成的数据之后的全部url
+     * @return
+     */
+    List<String> findByUrlComplete();
 }

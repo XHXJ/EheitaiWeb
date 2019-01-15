@@ -47,8 +47,12 @@ public class WebMagicScheduler implements DuplicateRemover {
     //EheitaiDetailPageService eheitaiDetailPageService;
 
 
+    /**
+     * 去把数据库中的url数据查去给队列使用
+     */
     public void remove() {
-        byUrl = eheitaiDetailPageService.findByUrl();
+        //当作品下载完成时应该不去查询
+        byUrl = eheitaiDetailPageService.findByUrlComplete();
     }
 
 

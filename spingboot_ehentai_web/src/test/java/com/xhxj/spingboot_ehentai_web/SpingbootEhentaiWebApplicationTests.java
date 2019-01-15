@@ -45,6 +45,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -255,9 +256,44 @@ public class SpingbootEhentaiWebApplicationTests {
 
     @Test
     public void TestError() {
-
+        //去重复
         errorProxyUtils.analysis();
+    }
 
+
+    @Autowired
+    @Test
+    public void TestOk() {
+        //查询全部的gid
+        List<Integer> gidAll = eheitaiCatalogDao2.findGidAll();
+
+        for (Integer gid : gidAll) {
+            //查看gid作品的总页数
+            Integer byGidWhereLanguage = eheitaiCatalogDao2.findByGidWhereLanguage(gid);
+            //查看作品的实际下载页数
+            Integer byGidWherePage = eheitaiDetailPageDao2.findByGidWherePage(gid);
+
+            if (byGidWhereLanguage.equals(byGidWherePage) ) {
+                //如果当前作品eheitaiCatalog记录的页数相等于他对应的eheitaiDetailPages的总数,那作品就下载完成
+                //更新作品状态
+                List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
+                if (byGid.size() == 1) {
+                    //确保数据唯一
+
+                    EheitaiCatalog eheitaiCatalog = byGid.get(0);
+                    eheitaiCatalog.setComplete(1);
+                    //作品设置下载值为1,表示该作品抓取完成
+                    eheitaiCatalogDao.save(eheitaiCatalog);
+
+                } else if (byGid.size()>1){
+                    System.out.println("有重复gid的作品");
+                }
+
+
+            } else if (byGidWherePage > byGidWhereLanguage){
+                System.out.println("有重复下载数据");
+            }
+        }
     }
 }
 
