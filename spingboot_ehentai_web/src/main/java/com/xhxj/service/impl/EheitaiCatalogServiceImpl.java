@@ -122,13 +122,7 @@ public class EheitaiCatalogServiceImpl implements EheitaiCatalogService {
                     }
 
 
-                    try {
-                        activeMqQueueProduce.postMessage(gid);
-
-                    } catch (JMSException e) {
-                        System.out.println("发送消息失败,请检查ActiveMQ是否启动");
-                        e.printStackTrace();
-                    }
+                    
                 } else if (byGidWherePage > byGidWhereLanguage) {
                     //判断实际下载页数是否大于作品总页数
                     System.out.println("GID:" + gid + "  一般你看到这个消息的时候,说明实际下载页数,比作品总数多,sql中有重复数据,除非是他网站数据出问题,不然这个问题就很麻烦了");

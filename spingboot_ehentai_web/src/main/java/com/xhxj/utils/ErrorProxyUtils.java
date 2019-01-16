@@ -62,7 +62,7 @@ public class ErrorProxyUtils {
             for (String s : roles.keySet()) {
                 Integer integer = roles.get(s);
                 errorProxy = new ErrorProxy();
-                split = s.split(":");
+                split = s.split("@");
                 errorProxy.setHost(split[0]);
                 errorProxy.setPort(Integer.valueOf(split[1]));
                 errorProxy.setDate(new Date());

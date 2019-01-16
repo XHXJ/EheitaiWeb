@@ -98,7 +98,7 @@ public class HttpClientDownloader extends AbstractDownloader {
             //只针对Ehentai,其他网站请自行判断
             if (Integer.valueOf(page.getRawText().length()) < 280){
                 //这个代理器被封了
-                String url = proxy.getHost()+":"+proxy.getPort()+":"+page.getRawText()+"\n";
+                String url = proxy.getHost()+"@"+proxy.getPort()+"@"+"页面长度不够,应该是返回"+"\n";
 
                 try {
                     FileWriter fileWriter = new FileWriter("./error/banProxyIP.txt",true);
@@ -119,7 +119,7 @@ public class HttpClientDownloader extends AbstractDownloader {
 //            System.out.println("错误是不是在这里报的~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~我在:C:\\Users\\78222\\IdeaProjects\\git\\webmagic-core\\src\\main\\java\\us\\codecraft\\webmagic\\downloader\\HttpClientDownloader.java)");
 
             //这个错误一般是压根没办法正常访问网站,该代理服务器可能用不了
-            String proxyAll = proxy.getHost()+":"+proxy.getPort()+"\n";
+            String proxyAll = proxy.getHost()+"@"+proxy.getPort()+"\n";
             String url = request.getUrl();
 
 

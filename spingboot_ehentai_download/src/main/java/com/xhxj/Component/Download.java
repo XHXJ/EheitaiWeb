@@ -56,34 +56,27 @@ public class Download {
 
 
     @Async
-    public void download(Integer i, EheitaiCatalogService eheitaiCatalogService, EheitaiDetailPageService eheitaiDetailPageService, Download download) {
+    public void download(String[] i, EheitaiCatalogService eheitaiCatalogService, EheitaiDetailPageService eheitaiDetailPageService, Download download) {
 
-        logger.info("这里是接收到的作品编号:" + i);
-
-        //去查询当前作品的所有下载连接
-        List<EheitaiDetailPage> byGidAndUrl = eheitaiDetailPageService.findByGid(i);
+        logger.info("这里是接收到的作品编号:" + i[0]);
 
 
-        //去查询作品的名字
-        String name = eheitaiCatalogService.findGetName(i);
 
 
-        for (EheitaiDetailPage s : byGidAndUrl) {
-            download.downloadImgurl(s, name);
-        }
+            download.downloadImgurl(i);
+
 
 
     }
 
 
     @Async
-    public void downloadImgurl(EheitaiDetailPage s, String name) {
-        logger.info("图片开始下载:" + s + "作品名字:" + name);
+    public void downloadImgurl(String[] strings) {
+        logger.info("图片开始下载:" + strings[1] + "作品名字:" + strings[0]);
 
 
 
-        try {
-            URL url = new URL(s.getImgUrl());
+
 
             CookieStore cookieStore = new BasicCookieStore();
 //        System.out.println("传入cookieStore前的数据:" + cookieStore.toString());
@@ -100,12 +93,19 @@ public class Download {
                 /**
                  * 这里需要修改为对象传参
                  */
-                uriBuilder = new URIBuilder(s.getImgUrl());
+        try {
+            uriBuilder = new URIBuilder(strings[1]);
 
 
-                httpGet = new HttpGet(uriBuilder.build());
+            httpGet = new HttpGet(uriBuilder.build());
+        } catch (URISyntaxException e) {
 
-                //设置获取时的等待参数
+            System.out.println("设置连接出错");
+
+            e.printStackTrace();
+        }
+
+        //设置获取时的等待参数
                 httpGet.setConfig(setConfig());
                 //设置请求头
                 httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36");
@@ -118,51 +118,48 @@ public class Download {
 
             CloseableHttpResponse response = null;
 
-            try {
-                response = client.execute(httpGet);
-                if(response.getStatusLine().getStatusCode()==200) {
-                    HttpEntity httpEntity = response.getEntity();
-                    // 文件的后缀(.jpg)
-
-                    File files = new File("D:/imgUrl/" + name + "/");
-                    if (!files.exists()) {
-                        files.mkdirs();
-                    }
-                    OutputStream outputStream = new FileOutputStream("D:/imgUrl/" + s.getFileLog());
-                    httpEntity.writeTo(outputStream);
-
-                }
 
 
-//                FileOutputStream out = new FileOutputStream(file);
-//                int index;
-//                byte[] bytes = new byte[1024];
-//                while ((index = inputStream.read(bytes)) != -1) {
-//                    out.write(bytes, 0, index);
-//                    out.flush();
-//                }
-//
-//                inputStream.close();
-//                out.close();
-
-
-
-
-
-
-            } catch (IOException e) {
-                System.out.println("'访问网站失败");
+                try {
+                    response = client.execute(httpGet);
+                } catch (IOException e) {
+                    //把访问失败的网址加入到之前的
                     e.printStackTrace();
                 }
 
 
 
+                if(response.getStatusLine().getStatusCode()==200) {
+                    HttpEntity httpEntity = response.getEntity();
+                    // 文件的后缀(.jpg)
+
+                    File files = new File("D:/imgUrl/" + strings[0] + "/");
+                    if (!files.exists()) {
+                        files.mkdirs();
+                    }
+                    try {
+                        OutputStream outputStream = new FileOutputStream("D:/imgUrl/" + strings[0] + "/"+strings[2]);
+                        httpEntity.writeTo(outputStream);
+                    } catch (IOException e) {
+
+                        System.out.println("写出文件报错");
+                    }
+
+                }else {
+
+                    System.out.println("访问值不是200");
+                }
 
 
-        }catch (Exception e){
-            System.out.println("????");
-            e.fillInStackTrace();
-        }
+
+
+
+
+
+
+
+
+
     }
 
 

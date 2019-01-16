@@ -1,5 +1,6 @@
 package com.xhxj.service.impl;
 
+import com.xhxj.controller.ActiveMqQueueProduce;
 import com.xhxj.dao.EheitaiCatalogDao;
 import com.xhxj.dao.EheitaiDetailPageDao;
 import com.xhxj.daomain.EheitaiCatalog;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.JMSException;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,9 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
 
     @Autowired
     EheitaiCatalogDao eheitaiCatalogDao;
+
+    @Autowired
+    ActiveMqQueueProduce activeMqQueueProduce;
 
     /**
      * 保存对象
@@ -93,6 +98,16 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
             //保存
             //是时候重写保存语句了....
             eheitaiCatalogDao.save(eheitaiCatalog);
+
+            try {
+                activeMqQueueProduce.postMessage(eheitaiCatalog.getGid()+"@"+pageeheitaiDetailPage.getImgUrl()+"@"+pageeheitaiDetailPage.getFileLog());
+
+            } catch (JMSException e) {
+                System.out.println("发送消息失败,请检查ActiveMQ是否启动");
+                e.printStackTrace();
+            }
+
+
         } else {
             System.out.println(byGid);
             System.out.println("为什么没有数据,或者不是一个");

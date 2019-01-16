@@ -1,6 +1,7 @@
 package com.xhxj.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.xhxj.daomain.ErrorProxy;
 import com.xhxj.daomain.Proxies;
 import com.xhxj.daomain.ProxiesBean;
@@ -104,13 +105,12 @@ public class GetProxy {
 
 
         List<Proxy> objects = new ArrayList<>();
-
-        Proxies proxies = null;
+        String[] pr = null;
 
         while (objects.size() < 10) {
 
             try {
-                Thread.sleep(300);
+                Thread.sleep(5000);
                 //创建HttpClient对象
                 CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -129,25 +129,23 @@ public class GetProxy {
                     String content = EntityUtils.toString(response.getEntity(), "utf8");
 
 
-                    proxies = JSON.parseObject(content, Proxies.class);
+                    pr = content.split("\r\n");
 
 
-                    List<ProxiesBean> proxies1 = proxies.getProxies();
-                    for (ProxiesBean proxiesBean : proxies1) {
+                    for (String proxiesBean : pr) {
+                        String[] split = proxiesBean.split(":");
                         //去把id相等的数据查出来
-                        ErrorProxy errorProxy = errorProxyService.finByHost(proxiesBean.getIp());
+                        ErrorProxy errorProxy = errorProxyService.finByHost(split[0]);
                         //要没有重复数据才添加
                         if (errorProxy == null) {
-                            objects.add(new Proxy(proxiesBean.getIp(), proxiesBean.getPort()));
+                            objects.add(new Proxy(split[0], Integer.valueOf(split[1])));
                         }
-                        System.out.println("代理地址在黑名单中:"+proxiesBean.getIp()+"\n" +
+                        System.out.println("代理地址在黑名单中:"+split[0]+"\n" +
                                 "当前拥有代理:"+objects.size()+"个");
                     }
 
                 }
-                if (proxies.getProxies().size() == 0) {
-                    System.out.println("访问大佬给的代理连接池失败!注意查看原因");
-                }
+
 
 
                 response.close();

@@ -286,7 +286,7 @@ public class SpingbootEhentaiWebApplicationTests {
     @Test
     public void Mqfor() {
         try {
-            activeMqQueueProduce.postMessage(1341830);
+            activeMqQueueProduce.postMessage(1341830+"");
         } catch (JMSException e) {
             e.printStackTrace();
         }
