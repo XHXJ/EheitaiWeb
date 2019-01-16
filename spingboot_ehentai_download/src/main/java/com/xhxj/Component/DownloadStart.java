@@ -26,13 +26,19 @@ public class DownloadStart {
      *
      * @throws JMSException
      */
-    @Scheduled(initialDelay = 1000, fixedDelay = 1 * 60 * 60 * 1000)
-    public Value Test() throws JMSException {
+    @Scheduled(initialDelay = 1000, fixedDelay =  60*1000)
+    public void Test() throws JMSException {
 
         //创建ConnectionFactory
         ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.211.128:61616");
         //创建会话对象
         while (true) {
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             //创建连接对象Connection
             Connection connection = connectionFactory.createConnection();
 
@@ -52,7 +58,7 @@ public class DownloadStart {
 
             System.out.println("mq接收还活着");
             //等待10秒，在10秒内一直处于接收消息状态
-            Message message = consumer.receive(1000 * 10);
+            Message message = consumer.receive();
             if (message != null) {
                 if (message instanceof TextMessage) {
 

@@ -2,12 +2,16 @@ package com.xhxj.controller;
 
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.scheduler.component.DuplicateRemover;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,23 +50,22 @@ public class WebMagicScheduler implements DuplicateRemover {
     /**
      * 去把数据库中的url数据查去给队列使用
      */
+
+
     public void remove() {
-        //当作品下载完成时应该不去查询
-        byUrl = eheitaiDetailPageService.findByUrlComplete();
+        //查询数据库全部url
+        urlall =eheitaiDetailPageService.findByUrl();
+
+
     }
 
-
-    private Set<String> urls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-
-    //数据库中所有的图片url连接用于去重复
-    private static List<String> byUrl = new ArrayList<>();
+    private  Set<String> urls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+    private static List<String> urlall = new ArrayList<>();
 
     @Override
     public boolean isDuplicate(Request request, Task task) {
-        List<String> all = byUrl;
-        for (String s : all) {
-            urls.add(s);
-        }
+        //查询是否有重复数据
+        urls.addAll(urlall) ;
 
         return !urls.add(getUrl(request));
     }

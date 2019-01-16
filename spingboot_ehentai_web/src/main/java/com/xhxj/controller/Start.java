@@ -7,6 +7,7 @@ import com.xhxj.service.EheitaiDetailPageService;
 import com.xhxj.service.ErrorProxyService;
 import com.xhxj.utils.ErrorProxyUtils;
 import com.xhxj.utils.GetProxy;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.Async;
@@ -53,7 +54,6 @@ public class Start {
     ErrorProxyService errorProxyService;
 
 
-
     /**
      * 开始爬虫
      */
@@ -70,56 +70,56 @@ public class Start {
         analysisUrl.analysisHtml();
         //下载页面
 
-
-        //把sql中没有爬的连接全部丢给爬虫
-        //这里以后要改要有条件的查询
-
-
-        List<EheitaiCatalog> all = eheitaiCatalogService.findByComplete(0);
-        List<String> urlall = new ArrayList<>();
-
-        //添加完成查询方法,如果完成的不需要爬取
+        while (true) {
+            //把sql中没有爬的连接全部丢给爬虫
+            //这里以后要改要有条件的查询
 
 
-        //如果sql中有数据就去爬
-        if (all.size() != 0) {
+            List<EheitaiCatalog> all = eheitaiCatalogService.findByComplete(0);
+            List<String> urlall = new ArrayList<>();
+
+            //添加完成查询方法,如果完成的不需要爬取
+
             for (EheitaiCatalog eheitaiCatalog : all) {
                 urlall.add(eheitaiCatalog.getUrl());
             }
-            //去看看有没有之前报错的数据也一并给他丢进去了
-            urlall.addAll(readErrorUrl());
+
+
+            //如果sql中有数据就去爬
+            if (all.size() != 0) {
+
+                //去看看有没有之前报错的数据也一并给他丢进去了
 
 
 
-            //第一次爬虫开始
-            webMagic.httpWebStart(urlall, getHttpProxy(), eheitaiCatalogService, eheitaiDetailPageService);
-            //这里的逻辑需要优化,之前作品应该完成
-            //这是第一次爬取所有报错的连接
-            //如果有错误地址就一直重复爬取
-            //在重复爬取几次后,就只爬取图片页面的数据
-            while (true) {
+                //第一次爬虫开始
 
-                List<String> errorUrl = readErrorUrl();
+                //这里的逻辑需要优化,之前作品应该完成
+                //这是第一次爬取所有报错的连接
+                //如果有错误地址就一直重复爬取
+                //在重复爬取几次后,就只爬取图片页面的数据
 
+                List<String> list = readErrorUrl();
+
+                urlall.addAll(list);
+
+                webMagic.httpWebStart(urlall, getHttpProxy(), eheitaiCatalogService, eheitaiDetailPageService);
 
                 Integer integer = eheitaiDetailPageService.findByUrlCountPage();
 
                 Integer integer1 = eheitaiCatalogService.findByUrlCountPage();
 
 
-                System.out.println("已爬取:"+integer1+"页@剩:"+integer+"页");
-                if (integer.equals(integer1) ) {
+                System.out.println("已爬取:" + integer1 + "页@剩:" + integer + "页");
+                if (integer.equals(integer1)) {
                     System.out.println("爬取完毕!!!");
                     System.exit(0);
                 }
 
-                //重新开始爬取
-                webMagic.httpweb(errorUrl, getHttpProxy());
 
+            } else {
+                System.out.println("所有数据已爬取成功~~~~~~~~~~~~~~~~~~~~~~~~");
             }
-
-        }else {
-            System.out.println("所有数据已爬取成功~~~~~~~~~~~~~~~~~~~~~~~~");
         }
     }
 
@@ -165,6 +165,17 @@ public class Start {
             //合并两个读取的连接
             list.addAll(banlist);
 
+//            List<String> all = new ArrayList<>();
+//
+//            for (String url : list) {
+//                //再进行二次去重
+//                String byUrl = eheitaiDetailPageService.findByUrl(url);
+//                if (!StringUtils.isNotEmpty(byUrl)){
+//                    all.add(url);
+//                }
+//
+//            }
+
             return list;
 
 
@@ -175,9 +186,6 @@ public class Start {
         return new ArrayList<>();
 
     }
-
-
-
 
 
     /**
@@ -200,15 +208,18 @@ public class Start {
 
         //定期删除状态为error,总报错次数不超过几次的数据
 
-        errorProxyService.deleteByStateAndCounter(6);
+        errorProxyService.deleteByStateAndCounter(3);
 
     }
 
 
     @Async
-    @Scheduled(initialDelay = 1 * 100, fixedDelay = 30 * 1000)
+    @Scheduled(initialDelay = 1 * 100, fixedDelay = 15 * 1000)
     public void Remove() {
         System.out.println("查询了数据库中的全部图片url,用于去重");
+
+
+
         webMagicScheduler.remove();
 
 

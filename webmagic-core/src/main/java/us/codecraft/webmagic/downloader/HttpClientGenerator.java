@@ -45,7 +45,7 @@ public class HttpClientGenerator {
                 .register("https", buildSSLConnectionSocketFactory())
                 .build();
         connectionManager = new PoolingHttpClientConnectionManager(reg);
-        connectionManager.setDefaultMaxPerRoute(100);//设置连接池默认大小
+        connectionManager.setDefaultMaxPerRoute(100);
     }
 
 	private SSLConnectionSocketFactory buildSSLConnectionSocketFactory() {

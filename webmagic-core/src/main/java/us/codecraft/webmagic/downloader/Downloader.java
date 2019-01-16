@@ -5,7 +5,7 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;
 
 /**
- * Downloader is the part that downloads Component pages and store in Page object. <br>
+ * Downloader is the part that downloads web pages and store in Page object. <br>
  * Downloader has {@link #setThread(int)} method because downloader is always the bottleneck of a crawler,
  * there are always some mechanisms such as pooling in downloader, and pool size is related to thread numbers.
  *
@@ -15,7 +15,7 @@ import us.codecraft.webmagic.Task;
 public interface Downloader {
 
     /**
-     * Downloads Component pages and store in Page object.
+     * Downloads web pages and store in Page object.
      *
      * @param request request
      * @param task task

@@ -307,9 +307,9 @@ public class WebMagic implements PageProcessor {
      */
     Site site = Site
             .me()
-            .setTimeOut(10000) // 设置超时时间,服务器在国外设置大一些
-            .setRetrySleepTime(5000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
-            .setRetryTimes(10) // 设置重试次数
+            .setTimeOut(1000*2) // 设置超时时间,服务器在国外设置大一些
+            .setRetrySleepTime(3000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
+            .setRetryTimes(2) // 设置重试次数
             .setCharset("UTF-8") // 获取UTF-8网站的数据
             .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36")
             .addHeader("Cookie", "igneous=6c63cbdc0; ipb_member_id=805259; ipb_pass_hash=1a0592e854f1b08bcb9c2eb40b6455de; yay=0; lv=1546944712-1546960410");

@@ -8,8 +8,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>webmagic-core</artifactId>
-    <packaging>jar</packaging>
-
 
     <dependencies>
         <dependency>
@@ -81,7 +79,6 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
         </dependency>
-
 
     </dependencies>
 
