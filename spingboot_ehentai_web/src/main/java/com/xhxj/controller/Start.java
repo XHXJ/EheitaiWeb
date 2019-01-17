@@ -214,11 +214,10 @@ public class Start {
 
 
     @Async
-    @Scheduled(initialDelay = 1 * 100, fixedDelay = 15 * 1000)
+    @Scheduled(initialDelay = 30 * 1000, fixedDelay = 15 * 1000)
     public void Remove() {
+
         System.out.println("查询了数据库中的全部图片url,用于去重");
-
-
 
         webMagicScheduler.remove();
 

@@ -1,5 +1,6 @@
 package com.xhxj.controller;
 
+import com.xhxj.daomain.EheitaiCatalog;
 import com.xhxj.service.EheitaiCatalogService;
 import com.xhxj.service.EheitaiDetailPageService;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,7 @@ public class WebMagicScheduler implements DuplicateRemover {
 
 
     public void remove() {
+
         //查询数据库全部url
         urlall =eheitaiDetailPageService.findByUrl();
 

@@ -23,9 +23,9 @@ public class CustomMultiThreadingConfig implements AsyncConfigurer{
     public Executor getAsyncExecutor() {// 实现AsyncConfigurer接口并重写getAsyncExecutor方法，并返回一个ThreadPoolTaskExecutor，这样我们就获得了一个基于线程池TaskExecutor
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         //线程池维护线程的最少数量
-        taskExecutor.setCorePoolSize(100);
+        taskExecutor.setCorePoolSize(40);
         //线程最大的数量
-        taskExecutor.setMaxPoolSize(200);
+        taskExecutor.setMaxPoolSize(80);
         //线程池所使用的缓冲队列
         taskExecutor.setQueueCapacity(1000);
         taskExecutor.initialize();

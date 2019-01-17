@@ -30,16 +30,17 @@ public class DownloadStart {
     @Scheduled(initialDelay = 1000, fixedDelay =  60*1000)
     public void Test() throws JMSException {
 
-        //创建ConnectionFactory
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.211.128:61616");
-        //创建会话对象
-
         while (true) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        //创建ConnectionFactory
+        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.211.128:61616");
+        //创建会话对象
+
+
             //创建连接对象Connection
             Connection connection = connectionFactory.createConnection();
 
@@ -56,10 +57,11 @@ public class DownloadStart {
             //接收消息
             MessageConsumer consumer = session.createConsumer(test);
 
-
             //不让他睡会的话高并发起来就被打死了....
             System.out.println("mq接收还活着");
             //等待10秒，在10秒内一直处于接收消息状态
+
+
             Message message = consumer.receive();
             if (message != null) {
                 if (message instanceof TextMessage) {
@@ -74,7 +76,7 @@ public class DownloadStart {
 
 
                     //这里需要分别调用spingboot的多线程new 的多线程无法使用
-                    download.download(split, eheitaiCatalogService, eheitaiDetailPageService, download);
+                    download.downloadImgurl(split);
                     //关闭资源
 
                     session.close();
