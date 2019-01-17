@@ -5,6 +5,7 @@ import com.xhxj.service.EheitaiDetailPageService;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -32,10 +33,10 @@ public class DownloadStart {
         //创建ConnectionFactory
         ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.211.128:61616");
         //创建会话对象
-        while (true) {
 
+        while (true) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -56,6 +57,7 @@ public class DownloadStart {
             MessageConsumer consumer = session.createConsumer(test);
 
 
+            //不让他睡会的话高并发起来就被打死了....
             System.out.println("mq接收还活着");
             //等待10秒，在10秒内一直处于接收消息状态
             Message message = consumer.receive();
@@ -75,11 +77,13 @@ public class DownloadStart {
                     download.download(split, eheitaiCatalogService, eheitaiDetailPageService, download);
                     //关闭资源
 
+                    session.close();
+                    connection.close();
 
                 }
-            }session.close();
-            connection.close();
+            }
         }
+
 
 
     }

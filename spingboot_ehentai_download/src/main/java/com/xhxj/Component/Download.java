@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public class Download {
         this.eheitaiDetailPageService = eheitaiDetailPageService;
         cm = new PoolingHttpClientConnectionManager();
         //设置连接池的最大连接数
-        cm.setMaxTotal(100);
+        cm.setMaxTotal(1000);
 
     }
 
@@ -124,6 +125,11 @@ public class Download {
                     response = client.execute(httpGet);
                 } catch (IOException e) {
                     //把访问失败的网址加入到之前的
+                    /**
+                     * 待处理一些逻辑
+                     */
+
+
                     e.printStackTrace();
                 }
 
@@ -138,8 +144,14 @@ public class Download {
                         files.mkdirs();
                     }
                     try {
+
                         OutputStream outputStream = new FileOutputStream("D:/imgUrl/" + strings[0] + "/"+strings[2]);
-                        httpEntity.writeTo(outputStream);
+                        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+                        httpEntity.writeTo(bufferedOutputStream);
+                        //写完关闭
+                        outputStream.close();
+                        bufferedOutputStream.close();
+
                     } catch (IOException e) {
 
                         System.out.println("写出文件报错");
@@ -162,17 +174,21 @@ public class Download {
 
     }
 
+    //假装写个连接池
+    private static List<HttpHost> allHttpHost = new ArrayList<>();
+
 
     //设置获取时的等待参数
     public RequestConfig setConfig() {
         //设置代理服务器
-        HttpHost proxy = new HttpHost("127.0.0.1", 1081, "http");
+        //这个地址是自己的代理池,每次访问会给一个新的代理
+        HttpHost proxy = new HttpHost("192.168.211.131", 8081, "http");
         System.out.println(proxy);
 
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(1000*100)//创建连接的超时时间,单位毫秒.
-                .setConnectionRequestTimeout(300)//从连接池中创建连接的超时时间,单位毫秒
-                .setSocketTimeout(100 * 1000)//数据的传输超时时间
+                .setConnectionRequestTimeout(500)//从连接池中创建连接的超时时间,单位毫秒
+                .setSocketTimeout(60 * 1000)//数据的传输超时时间
                 .setProxy(proxy)
                 .setCookieSpec(CookieSpecs.DEFAULT)
                 .build();

@@ -105,12 +105,13 @@ public class GetProxy {
 
 
         List<Proxy> objects = new ArrayList<>();
-        String[] pr = null;
+
+        Proxies proxies = null;
 
         while (objects.size() < 10) {
 
             try {
-                Thread.sleep(5000);
+                Thread.sleep(1000);
                 //创建HttpClient对象
                 CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -129,18 +130,18 @@ public class GetProxy {
                     String content = EntityUtils.toString(response.getEntity(), "utf8");
 
 
-                    pr = content.split("\r\n");
+                    proxies = JSON.parseObject(content, Proxies.class);
 
 
-                    for (String proxiesBean : pr) {
-                        String[] split = proxiesBean.split(":");
+                    List<ProxiesBean> proxies1 = proxies.getProxies();
+                    for (ProxiesBean proxiesBean : proxies1) {
                         //去把id相等的数据查出来
-                        ErrorProxy errorProxy = errorProxyService.finByHost(split[0]);
+                        ErrorProxy errorProxy = errorProxyService.finByHost(proxiesBean.getIp());
                         //要没有重复数据才添加
                         if (errorProxy == null) {
-                            objects.add(new Proxy(split[0], Integer.valueOf(split[1])));
+                            objects.add(new Proxy(proxiesBean.getIp(), proxiesBean.getPort()));
                         }
-                        System.out.println("代理地址在黑名单中:"+split[0]+"\n" +
+                        System.out.println("代理地址在黑名单中:"+proxiesBean.getIp()+"\n" +
                                 "当前拥有代理:"+objects.size()+"个");
                     }
 

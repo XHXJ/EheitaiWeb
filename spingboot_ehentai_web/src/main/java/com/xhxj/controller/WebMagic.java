@@ -308,7 +308,7 @@ public class WebMagic implements PageProcessor {
     Site site = Site
             .me()
             .setTimeOut(1000*2) // 设置超时时间,服务器在国外设置大一些
-            .setRetrySleepTime(3000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
+            .setRetrySleepTime(1000) // 设置重试时间（如果访问一个网站的时候失败了，Webmagic启动的过程中，会每3秒重复再次执行访问）
             .setRetryTimes(2) // 设置重试次数
             .setCharset("UTF-8") // 获取UTF-8网站的数据
             .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3664.3 Safari/537.36")
