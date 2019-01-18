@@ -30,14 +30,17 @@ public class DownloadStart {
     @Scheduled(initialDelay = 1000, fixedDelay =  60*1000)
     public void Test() throws JMSException {
 
+
         while (true) {
+
+            //试试不睡能不能撑住,不行,主要是代理服务器撑不住.宽带太小了.
             try {
-                Thread.sleep(100);
+                Thread.sleep(600);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         //创建ConnectionFactory
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.211.128:61616");
+        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.211.131:61616");
         //创建会话对象
 
 

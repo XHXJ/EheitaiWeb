@@ -91,7 +91,6 @@ public class Start {
                 //去看看有没有之前报错的数据也一并给他丢进去了
 
 
-
                 //第一次爬虫开始
 
                 //这里的逻辑需要优化,之前作品应该完成
@@ -113,6 +112,12 @@ public class Start {
                 System.out.println("已爬取:" + integer1 + "页@剩:" + integer + "页");
                 if (integer.equals(integer1)) {
                     System.out.println("爬取完毕!!!");
+
+                    //报错得url错误文件数据...因为已经没啥用了避免下次抓取新页面还在
+                    newErrorUrl();
+
+
+                    //结束爬虫罪恶得一生
                     System.exit(0);
                 }
 
@@ -120,6 +125,26 @@ public class Start {
             } else {
                 System.out.println("所有数据已爬取成功~~~~~~~~~~~~~~~~~~~~~~~~");
             }
+        }
+    }
+
+    private void newErrorUrl() {
+
+        //读取完毕之后就清除之前的
+
+        try {
+            FileWriter fileWriter = new FileWriter("./errorUrl.txt");
+
+            fileWriter.write("");
+            fileWriter.close();
+
+            //读取被ban的url
+            FileWriter banUrl = new FileWriter("./banUrl.txt");
+            banUrl.write("");
+            banUrl.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -208,7 +233,7 @@ public class Start {
 
         //定期删除状态为error,总报错次数不超过几次的数据
 
-        errorProxyService.deleteByStateAndCounter(3);
+        errorProxyService.deleteByStateAndCounter(20);
 
     }
 

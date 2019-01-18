@@ -55,15 +55,7 @@ public class Download {
 
     }
 
-    public void download(String[] i, EheitaiCatalogService eheitaiCatalogService, EheitaiDetailPageService eheitaiDetailPageService, Download download) {
 
-//        logger.info("这里是接收到的作品编号:" + i[0]);
-
-
-        download.downloadImgurl(i);
-
-
-    }
 
     @Async
     public void downloadImgurl(String[] strings) {
@@ -130,6 +122,9 @@ public class Download {
                 files.mkdirs();
             }
             try {
+                //加个同步锁,省得高并发出问题
+                synchronized(this){
+
 
                 OutputStream outputStream = new FileOutputStream("D:/imgUrl/" + strings[0] + "/" + strings[2]);
                 BufferedOutputStream bos = new BufferedOutputStream(outputStream);
@@ -147,7 +142,7 @@ public class Download {
 
                 bis.close();
                 bos.close();
-
+                }
             } catch (IOException e) {
 
                 System.out.println("写出文件报错");
@@ -208,6 +203,8 @@ public class Download {
     public RequestConfig setConfig() {
 
 
+
+
         String[] split1 = RoundRobin().split(":");
 
         HttpHost proxy = new HttpHost(split1[0], Integer.valueOf(split1[1]));
@@ -250,9 +247,9 @@ public class Download {
         System.out.println(proxy);
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(10000)//创建连接的超时时间,单位毫秒.
+                .setConnectTimeout(5000)//创建连接的超时时间,单位毫秒.
                 .setConnectionRequestTimeout(1000)//从连接池中创建连接的超时时间,单位毫秒
-                .setSocketTimeout(30000)//数据的传输超时时间
+                .setSocketTimeout(15000)//数据的传输超时时间
                 .setProxy(proxy)
                 .setCookieSpec(CookieSpecs.DEFAULT)
                 .build();

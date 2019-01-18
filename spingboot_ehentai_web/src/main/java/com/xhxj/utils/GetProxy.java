@@ -111,7 +111,7 @@ public class GetProxy {
         while (objects.size() < 10) {
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
                 //创建HttpClient对象
                 CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -122,7 +122,11 @@ public class GetProxy {
 
 
                 //使用HttpClient发起请求，获取response
-                response = httpClient.execute(httpGet);
+                try {
+                    response = httpClient.execute(httpGet);
+                } catch (IOException e) {
+                    System.out.println("获取代理服务器超时!请检查连接!!!!!!");
+                }
 
 
                 //解析响应

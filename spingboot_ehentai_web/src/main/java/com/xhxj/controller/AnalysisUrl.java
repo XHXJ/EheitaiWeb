@@ -203,8 +203,8 @@ public class AnalysisUrl {
              * 这里需要修改为对象传参
              */
             uriBuilder = new URIBuilder("https://exhentai.org/");
-                uriBuilder.setParameter("f_search", "guro");
-                uriBuilder.setParameter("page",page);
+//                uriBuilder.setParameter("f_search", "");
+//                uriBuilder.setParameter("page",page);
 
 
             httpGet = new HttpGet(uriBuilder.build());

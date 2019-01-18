@@ -84,6 +84,7 @@ public class EheitaiDetailPageServiceImpl implements EheitaiDetailPageService {
         //新建图片保存
 
         List<EheitaiCatalog> byGid = eheitaiCatalogDao.findByGid(gid);
+
         if (byGid.size() == 1) {
 
 

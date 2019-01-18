@@ -9,12 +9,9 @@ import javax.jms.*;
 public class ActiveMqQueueProduce {
     /**
      *发送mq消息通知下载器
-     * @param gid
-     * @param imgUrl
-     * @param fileLog
      */
     public  void postMessage(String s) throws JMSException {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.211.128:61616");
+        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.211.131:61616");
         Connection connection = connectionFactory.createConnection();
         connection.start();
 
